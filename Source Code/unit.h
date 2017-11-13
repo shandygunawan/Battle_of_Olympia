@@ -1,11 +1,8 @@
-/************************ Definisi Unit *************************************/
-
 #ifndef UNIT_H
 #define UNIT_H
 
+#include "globalconst.h"
 #include "point.h"
-#include "boolean.h"
-#include "player.h"
 
 /**************************** Definisi tipe Unit ****************************/
 
@@ -21,7 +18,6 @@ typedef struct {
 	int Price;
 	boolean Attack_Chance;
 } UNIT;
-
 
 /************************* Fungsi dan Prosedur ********************************/
 
@@ -42,22 +38,13 @@ void Unit_Battle(UNIT *U1, UNIT *U2);
 	Kalau tipe serangan sama, U2 akan melakukan counter
 */
 
-void Unit_Upkeep(Unit U, PLAYER *P);
-/* Gold Player yang bersangkutan akan digunakan untuk membayar unit */
-
 void Unit_Heal(UNIT *U);
 /* Meningkatkan Health untuk unit-unit yang berada adjacent dengan White Mage */
 /* Unit U = Unit yang akan di-heal */ 
 /* Prosedur khusus untuk White Mage */
 
-void Unit_AcquiateVillage(UNIT *U, TERRAIN *V)
-/* Unit mengakuisisi village yang satu petak dengan unit tersebut */
-/* Setelah akuisisi :
-	Owner Village = Owner Unit
-	Movement Unit = 0
-*/
 
-void Unit_Lose(ListU *L, UNIT U);
+// void Unit_Lose(ListU *L, struct UNIT U);
 /* Unit U mati karena Battle */
 /* Unit U dihapus dari ListUnit Pemain */
 

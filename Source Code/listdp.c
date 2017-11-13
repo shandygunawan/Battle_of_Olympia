@@ -2,28 +2,26 @@
 /* NIM  : 13516097 */
 
 #include "listdp.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 /* PROTOTYPE */
-/****************** TEST LIST KOSONG ******************/
-boolean ListU_IsEmpty (List L)
-/* Mengirim true jika list kosong. Lihat definisi di atas. */
+/****************** TEST ListU KOSONG ******************/
+boolean ListU_IsEmpty (ListU L)
+/* Mengirim true jika ListU kosong. Lihat definisi di atas. */
 {
     return ( (First(L) == Nil) && (Last(L) == Nil) );
 }
 
-/****************** PEMBUATAN LIST KOSONG ******************/
-void ListU_CreateEmpty (List *L)
+/****************** PEMBUATAN ListU KOSONG ******************/
+void ListU_CreateEmpty (ListU *L)
 /* I.S. L sembarang  */
-/* F.S. Terbentuk list kosong. Lihat definisi di atas. */
+/* F.S. Terbentuk ListU kosong. Lihat definisi di atas. */
 {
     First(*L) = Nil;
     Last(*L) = Nil;
 }
 
 /****************** Manajemen Memori ******************/
-address ListU_Alokasi (UNIT X)
+address ListU_Alokasi (UNIT U)
 /* Mengirimkan address hasil alokasi sebuah elemen */
 /* Jika alokasi berhasil, maka address tidak nil. */
 /* Misalnya: menghasilkan P, maka Info(P)=X, Next(P)=Nil, Prev(P)=Nil */
@@ -50,9 +48,9 @@ void ListU_Dealokasi (address P)
     free(P);
 }
 
-/****************** PENCARIAN SEBUAH ELEMEN LIST ******************/
+/****************** PENCARIAN SEBUAH ELEMEN ListU ******************/
 address ListU_SearchType (ListU L, char type)
-/* Mencari apakah ada elemen list dengan P.Unit,Type=type */
+/* Mencari apakah ada elemen ListU dengan P.Unit,Type=type */
 /* Jika ada, mengirimkan address elemen tersebut. */
 /* Jika tidak ada, mengirimkan Nil */
 {
@@ -63,7 +61,7 @@ address ListU_SearchType (ListU L, char type)
     if (!ListU_IsEmpty(L)){
 
         do{
-            if (P.Unit.Type == X){
+            if (P.Unit.Type == type){
                 found_add = P;
                 found = true;
             }
@@ -78,7 +76,7 @@ address ListU_SearchType (ListU L, char type)
 }
 
 address ListU_SearchUnit (ListU L, UNIT U)
-/* Mencari apakah ada elemen list dengan Unit(P)=U */
+/* Mencari apakah ada elemen ListU dengan Unit(P)=U */
 /* Jika ada, mengirimkan address elemen tersebut. */
 /* Jika tidak ada, mengirimkan Nil */
 {
@@ -89,7 +87,7 @@ address ListU_SearchUnit (ListU L, UNIT U)
     if (!ListU_IsEmpty(L)){
 
         do{
-            if (Unit(P) == X){
+            if (Unit(P) == U){
                 found_add = P;
                 found = true;
             }
@@ -118,7 +116,7 @@ void ListU_InsUFirst (ListU *L, UNIT U)
 void ListU_InsULast (ListU *L, infotype U)
 /* I.S. L mungkin kosong */
 /* F.S. Melakukan alokasi sebuah elemen dan */
-/* menambahkan elemen list di akhir: elemen terakhir yang baru */
+/* menambahkan elemen ListU di akhir: elemen terakhir yang baru */
 /* bernilai X jika alokasi berhasil. Jika alokasi gagal: I.S.= F.S. */
 {
     address P = Alokasi(U);
@@ -129,8 +127,8 @@ void ListU_InsULast (ListU *L, infotype U)
 
 /*** PENGHAPUSAN ELEMEN ***/
 void ListU_DelUFirst (ListU *L, UNIT *U)
-/* I.S. List L tidak kosong  */
-/* F.S. Elemen pertama list dihapus: nilai info disimpan pada X */
+/* I.S. ListU L tidak kosong  */
+/* F.S. Elemen pertama ListU dihapus: nilai info disimpan pada X */
 /*      dan alamat elemen pertama di-dealokasi */
 {
     address P;
@@ -138,9 +136,9 @@ void ListU_DelUFirst (ListU *L, UNIT *U)
     *U = Unit(P);
     ListU_Dealokasi(P);
 }
-void ListU_DelULast (List *L, UNIT *U)
-/* I.S. list tidak kosong */
-/* F.S. Elemen terakhir list dihapus: nilai info disimpan pada X */
+void ListU_DelULast (ListU *L, UNIT *U)
+/* I.S. ListU tidak kosong */
+/* F.S. Elemen terakhir ListU dihapus: nilai info disimpan pada X */
 /*      dan alamat elemen terakhir di-dealokasi */
 {
     address P;
@@ -151,7 +149,7 @@ void ListU_DelULast (List *L, UNIT *U)
 
 /****************** PRIMITIF BERDASARKAN ALAMAT ******************/
 /*** PENAMBAHAN ELEMEN BERDASARKAN ALAMAT ***/
-void ListU_InsertFirst (List *L, address P)
+void ListU_InsertFirst (ListU *L, address P)
 /* I.S. Sembarang, P sudah dialokasi  */
 /* F.S. Menambahkan elemen ber-address P sebagai elemen pertama */
 {
@@ -165,7 +163,7 @@ void ListU_InsertFirst (List *L, address P)
         Next(P) = Nil;
     }
 }
-void ListU_InsertLast (List *L, address P)
+void ListU_InsertLast (ListU *L, address P)
 /* I.S. Sembarang, P sudah dialokasi  */
 /* F.S. P ditambahkan sebagai elemen terakhir yang baru */
 {
@@ -181,8 +179,8 @@ void ListU_InsertLast (List *L, address P)
     }
 }
 
-void ListU_InsertAfter (List *L, address P, address Prec)
-/* I.S. Prec pastilah elemen list; P sudah dialokasi  */
+void ListU_InsertAfter (ListU *L, address P, address Prec)
+/* I.S. Prec pastilah elemen ListU; P sudah dialokasi  */
 /* F.S. Insert P sebagai elemen sesudah elemen beralamat Prec */
 {
     Next(P) = Next(Prec); // pointer P -> succ
@@ -198,8 +196,8 @@ void ListU_InsertAfter (List *L, address P, address Prec)
     Prev(P) = Prec; // pointer P -> prec
 }
 
-void ListU_InsertBefore (List *L, address P, address Succ)
-/* I.S. Succ pastilah elemen list; P sudah dialokasi  */
+void ListU_InsertBefore (ListU *L, address P, address Succ)
+/* I.S. Succ pastilah elemen ListU; P sudah dialokasi  */
 /* F.S. Insert P sebagai elemen sebelum elemen beralamat Succ */
 {
     Prev(P) = Prev(Succ); // pointer P -> prec
@@ -216,15 +214,15 @@ void ListU_InsertBefore (List *L, address P, address Succ)
 }
 
 /*** PENGHAPUSAN SEBUAH ELEMEN ***/
-void ListU_DelFirst (List *L, address *P)
-/* I.S. List tidak kosong */
-/* F.S. P adalah alamat elemen pertama list sebelum penghapusan */
-/*      Elemen list berkurang satu (mungkin menjadi kosong) */
+void ListU_DelFirst (ListU *L, address *P)
+/* I.S. ListU tidak kosong */
+/* F.S. P adalah alamat elemen pertama ListU sebelum penghapusan */
+/*      Elemen ListU berkurang satu (mungkin menjadi kosong) */
 /* First element yg baru adalah suksesor elemen pertama yang lama */
 {
     *P = First(*L);
     First(*L) = Next(First(*L));
-    if (First(*L) == Nil){  // if the new list doesnt have first element (possibly there was only 1 element)
+    if (First(*L) == Nil){  // if the new ListU doesnt have first element (possibly there was only 1 element)
         ListU_CreateEmpty(L);
     }
     else{
@@ -232,15 +230,15 @@ void ListU_DelFirst (List *L, address *P)
     }
 }
 
-void ListU_DelLast (List *L, address *P)
-/* I.S. List tidak kosong */
-/* F.S. P adalah alamat elemen terakhir list sebelum penghapusan  */
-/*      Elemen list berkurang satu (mungkin menjadi kosong) */
+void ListU_DelLast (ListU *L, address *P)
+/* I.S. ListU tidak kosong */
+/* F.S. P adalah alamat elemen terakhir ListU sebelum penghapusan  */
+/*      Elemen ListU berkurang satu (mungkin menjadi kosong) */
 /* Last element baru adalah predesesor elemen pertama yg lama, jika ada */
 {
     *P = Last(*L);
     Last(*L) = Prev(Last(*L));
-    if (Last(*L) == Nil){  // if the new list doesnt have last element (possibly there was only 1 element)
+    if (Last(*L) == Nil){  // if the new ListU doesnt have last element (possibly there was only 1 element)
         ListU_CreateEmpty(L);
     }
     else{
@@ -248,12 +246,12 @@ void ListU_DelLast (List *L, address *P)
     }
 }
 
-void ListU_DelP (List *L, UNIT U)
+void ListU_DelP (ListU *L, UNIT U)
 /* I.S. Sembarang */
-/* F.S. Jika ada elemen list beraddress P, dengan Info(P)=X  */
-/* maka P dihapus dari list dan didealokasi */
-/* Jika tidak ada elemen list dengan Info(P)=X, maka list tetap */
-/* List mungkin menjadi kosong karena penghapusan */
+/* F.S. Jika ada elemen ListU beraddress P, dengan Info(P)=X  */
+/* maka P dihapus dari ListU dan didealokasi */
+/* Jika tidak ada elemen ListU dengan Info(P)=X, maka ListU tetap */
+/* ListU mungkin menjadi kosong karena penghapusan */
 {
     address P = ListU_SearchUnit(*L, U);
 
@@ -271,10 +269,10 @@ void ListU_DelP (List *L, UNIT U)
         Dealokasi(P);
     }
 }
-void ListU_DelAfter (List *L, address *Pdel, address Prec)
-/* I.S. List tidak kosong. Prec adalah anggota list. */
+void ListU_DelAfter (ListU *L, address *Pdel, address Prec)
+/* I.S. ListU tidak kosong. Prec adalah anggota ListU. */
 /* F.S. Menghapus Next(Prec): */
-/*      Pdel adalah alamat elemen list yang dihapus  */
+/*      Pdel adalah alamat elemen ListU yang dihapus  */
 {
     *Pdel = Next(Prec);
 
@@ -290,10 +288,10 @@ void ListU_DelAfter (List *L, address *Pdel, address Prec)
     Prev(*Pdel) = Nil;
 }
 
-void ListU_DelBefore (List *L, address *Pdel, address Succ)
-/* I.S. List tidak kosong. Succ adalah anggota list. */
+void ListU_DelBefore (ListU *L, address *Pdel, address Succ)
+/* I.S. ListU tidak kosong. Succ adalah anggota ListU. */
 /* F.S. Menghapus Prev(Succ): */
-/*      Pdel adalah alamat elemen list yang dihapus  */
+/*      Pdel adalah alamat elemen ListU yang dihapus  */
 {
     *Pdel = Prev(Succ);
 
@@ -307,64 +305,4 @@ void ListU_DelBefore (List *L, address *Pdel, address Succ)
 
     Next(*Pdel) = Nil;
     Prev(*Pdel) = Nil;
-}
-
-/****************** PROSES SEMUA ELEMEN LIST ******************/
-void ListU_PrintForward (List L)
-/* I.S. List mungkin kosong */
-/* F.S. Jika list tidak kosong, isi list dicetak dari elemen pertama */
-/* ke elemen terakhir secara horizontal ke kanan: [e1,e2,...,en] */
-/* Contoh : jika ada tiga elemen bernilai 1, 20, 30 akan dicetak: [1,20,30] */
-/* Jika list kosong : menulis [] */
-/* Tidak ada tambahan karakter apa pun di awal, akhir, atau di tengah */
-{
-    printf("[");
-    if (!ListU_IsEmpty(L)){
-
-        address CP = First(L);
-
-        do{
-
-            printf("%d",Info(CP));
-
-            CP = Next(CP);
-
-            if (CP != Nil){ // last element no ','
-                printf(",");
-            }
-
-        } while (CP != Nil);
-
-    }
-
-    printf("]");
-}
-void ListU_PrintBackward (List L)
-/* I.S. List mungkin kosong */
-/* F.S. Jika list tidak kosong, isi list dicetak dari elemen terakhir */
-/* ke elemen pertama secara horizontal ke kanan: [en,en-1,...,e2,e1] */
-/* Contoh : jika ada tiga elemen bernilai 1, 20, 30 akan dicetak: [30,20,1] */
-/* Jika list kosong : menulis [] */
-/* Tidak ada tambahan karakter apa pun di awal, akhir, atau di tengah */
-{
-    printf("[");
-    if (!ListU_IsEmpty(L)){
-
-        address CP = Last(L);
-
-        do{
-
-            printf("%d",Info(CP));
-
-            CP = Prev(CP);
-
-            if (CP != Nil){ // last element no ','
-                printf(",");
-            }
-
-        } while (CP != Nil);
-
-    }
-
-    printf("]");
 }

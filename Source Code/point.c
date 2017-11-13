@@ -7,7 +7,6 @@
 #include "stdlib.h"
 #include "math.h"
 
-#define epsilon 1e-6
 #define PI 3.14159265
 #define rad(X) X*PI/180.0
 
@@ -22,7 +21,7 @@
         
 /* *** DEFINISI PROTOTIPE PRIMITIF *** */
 /* *** Konstruktor membentuk POINT *** */
-POINT MakePOINT (float X, float Y)
+POINT MakePOINT (int X, int Y)
 /* Membentuk sebuah POINT dari komponen-komponennya */
 {
 	POINT P;
@@ -42,8 +41,8 @@ void BacaPOINT (POINT * P)
 /* I.S. Sembarang */
 /* F.S. P terdefinisi */
 {
-	float x, y;
-	scanf("%f %f", &x, &y);
+	int x, y;
+	scanf("%d %d", &x, &y);
 
 	*P = MakePOINT(x, y);
 }
@@ -57,20 +56,20 @@ void TulisPOINT (POINT P)
 /* I.S. P terdefinisi */
 /* F.S. P tertulis di layar dengan format "(X,Y)" */                
 {
-	printf("(%.2f,%.2f)", Absis(P), Ordinat(P));
+	printf("(%d,%d)", Absis(P), Ordinat(P));
 }
 
 /* *** Kelompok operasi relasional terhadap POINT *** */
-boolean EQ (POINT P1, POINT P2)
+boolean EQPOINT (POINT P1, POINT P2)
 /* Mengirimkan true jika P1 = P2 : absis dan ordinatnya sama */
 {
-	return (abs(Absis(P1) - Absis(P2)) < epsilon && abs(Ordinat(P1) - Ordinat(P2)) < epsilon);
+	return ((Absis(P1) - Absis(P2)) == 0 && (Ordinat(P1) - Ordinat(P2)) == 0);
 }
 
-boolean NEQ (POINT P1, POINT P2)
+boolean NEQPOINT (POINT P1, POINT P2)
 /* Mengirimkan true jika P1 tidak sama dengan P2 */
 {
-	return (abs(Absis(P1) - Absis(P2)) >= epsilon || abs(Ordinat(P1) - Ordinat(P2)) >= epsilon);
+	return ((Absis(P1) - Absis(P2)) != 0 || (Ordinat(P1) - Ordinat(P2)) != 0);
 }
 
 /* *** Kelompok menentukan di mana P berada *** */
@@ -83,13 +82,13 @@ boolean IsOrigin (POINT P)
 boolean IsOnSbX (POINT P)
 /* Menghasilkan true jika P terletak Pada sumbu X */
 {
-	return abs(Ordinat(P)) < epsilon;
+	return (Ordinat(P) == 0);
 }
 
 boolean IsOnSbY (POINT P)
 /* Menghasilkan true jika P terletak pada sumbu Y */
 {
-	return abs(Absis(P)) < epsilon;
+	return (Absis(P) == 0);
 }
 
 int Kuadran (POINT P)
@@ -118,7 +117,7 @@ POINT NextY (POINT P)
 	return MakePOINT(Absis(P), Ordinat(P) + 1);
 }
 
-POINT PlusDelta (POINT P, float deltaX, float deltaY)
+POINT PlusDelta (POINT P, int deltaX, int deltaY)
 /* Mengirim salinan P yang absisnya adalah Absis(P) + deltaX dan ordinatnya adalah Ordinat(P) + deltaY */
 {
 	return MakePOINT(Absis(P) + deltaX, Ordinat(P) + deltaY);
@@ -145,7 +144,7 @@ float Panjang (POINT P1, POINT P2)
 	return sqrt((Absis(P1) - Absis(P2))*(Absis(P1) - Absis(P2)) + (Ordinat(P1) - Ordinat(P2))*(Ordinat(P1) - Ordinat(P2)));
 }
 
-void Geser (POINT *P, float deltaX, float deltaY)
+void Geser (POINT *P, int deltaX, int deltaY)
 /* I.S. P terdefinisi */
 /* F.S. P digeser, absisnya sebesar deltaX dan ordinatnya sebesar deltaY */
 {

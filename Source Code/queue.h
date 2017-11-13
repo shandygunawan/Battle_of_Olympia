@@ -6,21 +6,22 @@
 #define queue_H
 
 #include "boolean.h"
+#include "player.h"
 
-#define Nil 0
+#define Nol 0
 /* Konstanta untuk mendefinisikan address tak terdefinisi */
 
 /* Definisi elemen dan address */
-typedef int infotype;
-typedef int address;   /* indeks tabel */
+typedef PLAYER infotype;
+typedef int idx;   /* indeks tabel */
 /* Contoh deklarasi variabel bertype Queue : */
 /* Versi I : tabel dinamik, Head dan Tail eksplisit, ukuran disimpan */
 typedef struct { infotype * T;   /* tabel penyimpan elemen */
-                 address HEAD;  /* alamat penghapusan */
-                 address TAIL;  /* alamat penambahan */
+                 idx HEAD;  /* alamat penghapusan */
+                 idx TAIL;  /* alamat penambahan */
                  int MaxEl;     /* Max elemen queue */
                } Queue;
-/* Definisi Queue kosong: HEAD=Nil; TAIL=Nil. */
+/* Definisi Queue kosong: HEAD=Nol; TAIL=Nol. */
 /* Catatan implementasi: T[0] tidak pernah dipakai */
 
 /* ********* AKSES (Selektor) ********* */
@@ -37,7 +38,7 @@ boolean IsEmpty (Queue Q);
 boolean IsFull (Queue Q);
 /* Mengirim true jika tabel penampung elemen Q sudah penuh */
 /* yaitu mengandung elemen sebanyak MaxEl */
-int NBElmt (Queue Q);
+int NBElmtQueue (Queue Q);
 /* Mengirimkan banyaknya elemen queue. Mengirimkan 0 jika Q kosong. */
 
 /* *** Kreator *** */
@@ -47,6 +48,9 @@ void CreateEmpty (Queue * Q, int Max);
 /* Jika alokasi berhasil, Tabel memori dialokasi berukuran Max+1 */
 /* atau : jika alokasi gagal, Q kosong dg MaxEl=0 */
 /* Proses : Melakukan alokasi, membuat sebuah Q kosong */
+
+void InitQueue(Queue *Q);
+/* Membuat queue berisi daftar & urutan pemain */
 
 /* *** Destruktor *** */
 void DeAlokasi(Queue * Q);
@@ -62,7 +66,7 @@ void Add (Queue * Q, infotype X);
 void Del (Queue * Q, infotype * X);
 /* Proses: Menghapus X pada Q dengan aturan FIFO */
 /* I.S. Q tidak mungkin kosong */
-/* F.S. X = nilai elemen HEAD pd I.S., HEAD "maju" dengan mekanisme circular buffer; 
+/* F.S. X = Nolai elemen HEAD pd I.S., HEAD "maju" dengan mekanisme circular buffer; 
         Q mungkin kosong */
 
 #endif

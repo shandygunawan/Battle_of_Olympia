@@ -2,7 +2,6 @@
 #include "queue.h"
 #include "stdlib.h"
 
-#define Nil 0
 /* Konstanta untuk mendefinisikan address tak terdefinisi */
 
 /* Definisi elemen dan address */
@@ -15,7 +14,7 @@
 /*                  address TAIL;  /* alamat penambahan */
 /*                  int MaxEl;     /* Max elemen queue */
 /*                } Queue;
-/* Definisi Queue kosong: HEAD=Nil; TAIL=Nil. */
+/* Definisi Queue kosong: HEAD=Nol; TAIL=Nol. */
 /* Catatan implementasi: T[0] tidak pernah dipakai */
 
 /* ********* AKSES (Selektor) ********* */
@@ -30,7 +29,7 @@
 boolean IsEmpty (Queue Q)
 /* Mengirim true jika Q kosong: lihat definisi di atas */
 {
-  return ((Head(Q) == Nil) && Tail(Q) == Nil);
+  return ((Head(Q) == Nol) && Tail(Q) == Nol);
 }
 
 boolean IsFull (Queue Q)
@@ -40,7 +39,7 @@ boolean IsFull (Queue Q)
   return (Tail(Q) == (Head(Q) + MaxEl(Q) - 2) % MaxEl(Q) + 1);
 }
 
-int NBElmt (Queue Q)
+int NBElmtQueue (Queue Q)
 /* Mengirimkan banyaknya elemen queue. Mengirimkan 0 jika Q kosong. */
 {
   if (IsEmpty(Q)) {
@@ -61,12 +60,23 @@ void CreateEmpty (Queue * Q, int Max)
   (*Q).T = (infotype *) malloc((Max + 1) * sizeof(infotype));
   if ((*Q).T != NULL) {
     MaxEl(*Q) = Max;
-    Head(*Q) = Nil;
-    Tail(*Q) = Nil;
+    Head(*Q) = Nol;
+    Tail(*Q) = Nol;
   } else /* alokasi gagal */ {
     MaxEl(*Q) = 0;
   }
 }
+
+void InitQueue(Queue *Q)
+/* Membuat queue berisi daftar & urutan pemain */
+{
+  /* Membuat Queue kosong */
+  CreateEmpty(Q, 2);
+
+  /* Mengisi Queue dengan pemain */
+  Add(Q, Player_Init(1));
+  Add(Q, Player_Init(2));
+} 
 
 /* *** Destruktor *** */
 void DeAlokasi(Queue * Q)
@@ -96,13 +106,13 @@ void Add (Queue * Q, infotype X)
 void Del (Queue * Q, infotype * X)
 /* Proses: Menghapus X pada Q dengan aturan FIFO */
 /* I.S. Q tidak mungkin kosong */
-/* F.S. X = nilai elemen HEAD pd I.S., HEAD "maju" dengan mekanisme circular buffer; 
+/* F.S. X = Nolai elemen HEAD pd I.S., HEAD "maju" dengan mekanisme circular buffer; 
         Q mungkin kosong */
 {
   *X = InfoHead(*Q);
   Head(*Q) = (Head(*Q) % MaxEl(*Q)) + 1;
   if (Head(*Q) == Tail(*Q) % MaxEl(*Q) + 1) {
-  Head(*Q) = Nil;
-  Tail(*Q) = Nil;
+  Head(*Q) = Nol;
+  Tail(*Q) = Nol;
   }
 }
