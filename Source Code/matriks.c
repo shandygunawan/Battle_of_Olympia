@@ -1,6 +1,6 @@
 #include "matriks.h"
 
-/* *** Konstruktor membentuk MATRIKS *** */
+/*********** Matriks *****************/
 void MakeMATRIKS (int NB, int NK, MATRIKS * M)
 /* Membentuk sebuah MATRIKS "kosong" yang siap diisi berukuran NB x NK di "ujung kiri" memori */
 /* I.S. NB dan NK adalah valid untuk memori matriks yang dibuat */
@@ -10,245 +10,235 @@ void MakeMATRIKS (int NB, int NK, MATRIKS * M)
   (*M).NKolEff = NK;
 }
 
-/* *** Selektor *** */
-#define NBrsEff(M) (M).NBrsEff
-#define NKolEff(M) (M).NKolEff
-#define Elmt(M,i,j) (M).Mem[(i)][(j)]
-
-/* *** Selektor "DUNIA MATRIKS" *** */
-boolean IsIdxValid (int i, int j)
-/* Mengirimkan true jika i, j adalah indeks yang valid untuk matriks apa pun */
+void CreateEmptyMatriks(MATRIKS *M)
+/* Inisialisasi semua elemen matriks dengan nilai-nilai kosong*/
 {
-  return (i >= BrsMin) && (i <= BrsMax) && (j >= KolMin) && (j <= KolMax);
+  int i,j;
+  POINT P;
+
+  for(i=0;i<NBrsEff(*M);i++) {
+    for(j=0;j<NKolEff(*M);j++) {
+      P.X = i;
+      P.Y = j;
+      PElmt(M,i,j).Unit = Unit_CreateEmpty(P);
+      PElmt(M,i,j).Terrain = Map_CreateEmptyTerrain(P);
+    }
+  }
 }
 
-/* *** Selektor: Untuk sebuah matriks M yang terdefinisi: *** */
-indeks GetFirstIdxBrs (MATRIKS M)
-/* Mengirimkan indeks baris terkecil M */
-{
-  return BrsMin;
-}
 
-indeks GetFirstIdxKol (MATRIKS M)
-/* Mengirimkan indeks kolom terkecil M */
-{
-  return KolMin;
-}
-
-indeks GetLastIdxBrs (MATRIKS M)
-/* Mengirimkan indeks baris terbesar M */
-{
-  return NBrsEff(M) + BrsMin - 1;
-}
-
-indeks GetLastIdxKol (MATRIKS M)
-/* Mengirimkan indeks kolom terbesar M */
-{
-  return NKolEff(M) + KolMin - 1;
-}
-
-boolean IsIdxEff (MATRIKS M, indeks i, indeks j)
+boolean IsIdxEff (MATRIKS M, int i, int j)
 /* Mengirimkan true jika i, j adalah indeks efektif bagi M */
 {
-  return (i >= GetFirstIdxBrs(M)) && (i <= GetLastIdxBrs(M)) && (j >= GetFirstIdxKol(M)) && (j <= GetLastIdxKol(M));
+  return (i >= BrsMin) && (i <= (NBrsEff(M) + BrsMin - 1) ) && (j >= KolMin) && (j <= (NKolEff(M) + KolMin - 1));
 }
 
-ElType GetElmtDiagonal (MATRIKS M, indeks i)
-/* Mengirimkan elemen M(i,i) */
+/*********** MAP *****************/
+void Map_Init(MATRIKS *M)
+/* Membuat Map dengan baris x kolom */
 {
-  return Elmt(M,i,i);
+  int baris, kolom;
+  printf("Pilih ukuran map yang anda inginkan, minimal 8x8.\n");
+  printf("Baris : "); scanf("%d", &baris);
+  printf("Kolom : "); scanf("%d", &kolom);
+
+  MakeMATRIKS(baris, kolom, M);
 }
 
-/* ********** Assignment  MATRIKS ********** */
-void CopyMATRIKS (MATRIKS MIn, MATRIKS * MHsl)
-/* Melakukan assignment MHsl  MIn */
+void Map_ClearScreen()
+/* Menghilangkan tampilan di Terminal */
 {
-  indeks i,j;
-
-  MakeMATRIKS(NBrsEff(MIn), NKolEff(MIn), MHsl);
-  for (i = GetFirstIdxBrs(MIn); IsIdxEff(MIn, i, GetFirstIdxKol(MIn)); i++) {
-    for (j = GetFirstIdxKol(MIn); IsIdxEff(MIn, i, j); j++) {
-      Elmt(*MHsl, i, j) = Elmt(MIn, i, j);
-    }
-  }
-
+  system("clear");
 }
 
-/* ********** KELOMPOK BACA/TULIS ********** */ 
-void BacaMATRIKS (MATRIKS * M, int NB, int NK)
-/* I.S. IsIdxValid(NB,NK) */ 
-/* F.S. M terdefinisi nilai elemen efektifnya, berukuran NB x NK */
-/* Proses: Melakukan MakeMATRIKS(M,NB,NK) dan mengisi nilai efektifnya */
-/* Selanjutnya membaca nilai elemen per baris dan kolom */
-/* Contoh: Jika NB = 3 dan NK = 3, maka contoh cara membaca isi matriks :
-1 2 3
-4 5 6
-8 9 10 
-*/
+void Map_Print(MATRIKS M)
+/* Menampilkan matriks dalam bentuk peta ke layar */
 {
-  indeks i,j;
+  	int i,j;
+    int idxWriter=5,cR=0,cC=0,idxCol=-1,idxRow=-1,cCN=0,cN=0;
+    printf("\n       "); /* Spasi untuk nomor atas */
 
-  MakeMATRIKS(NB, NK, M);
-  for (i = GetFirstIdxBrs(*M); IsIdxEff(*M, i, GetFirstIdxKol(*M)); i++) {
-    for (j = GetFirstIdxKol(*M); IsIdxEff(*M, i, j); j++) {
-      scanf("%d",&Elmt(*M, i, j));
-    }
-  }
-
-}
-
-void TulisMATRIKS (MATRIKS M)
-/* I.S. M terdefinisi */
-/* F.S. Nilai M(i,j) ditulis ke layar per baris per kolom, masing-masing elemen per baris 
-   dipisahkan sebuah spasi */
-/* Proses: Menulis nilai setiap elemen M ke layar dengan traversal per baris dan per kolom */
-/* Contoh: menulis matriks 3x3 (ingat di akhir tiap baris, tidak ada spasi)
-1 2 3
-4 5 6
-8 9 10
-*/
-{
-  indeks i,j;
-
-  for (i = GetFirstIdxBrs(M); IsIdxEff(M, i, GetFirstIdxKol(M)); i++) {
-    for (j = GetFirstIdxKol(M); IsIdxEff(M, i, j); j++) {
-      printf("%d",Elmt(M, i, j));
-      if (j == GetLastIdxKol(M)) {
-        if (i != GetLastIdxBrs(M)) {
-          printf("\n");
+    for (i=0;i<NKolEff(M);i++)
+    {
+        /* Spasi nomor atas */
+        if(i<9)
+        {
+            printf("%d   ",i);
         }
-      } else {
-        printf(" ");
-      }
-    }
-  }
-
-}
-
-
-/* ********** KELOMPOK OPERASI ARITMATIKA TERHADAP TYPE ********** */                                  
-MATRIKS TambahMATRIKS (MATRIKS M1, MATRIKS M2)
-/* Prekondisi : M1  berukuran sama dengan M2 */
-/* Mengirim hasil penjumlahan matriks: M1 + M2 */ 
-{
-  indeks i,j;
-  MATRIKS M3;
-
-  MakeMATRIKS(NBrsEff(M1), NKolEff(M2), &M3);
-  for (i = GetFirstIdxBrs(M1); IsIdxEff(M1, i, GetFirstIdxKol(M1)); i++) {
-    for (j = GetFirstIdxKol(M1); IsIdxEff(M1, i, j); j++) {
-      Elmt(M3, i, j) = Elmt(M1, i, j) + Elmt(M2, i, j);
-    }
-  }
-
-  return M3;
-}
-
-MATRIKS KurangMATRIKS (MATRIKS M1, MATRIKS M2)
-/* Prekondisi : M berukuran sama dengan M */
-/* Mengirim hasil pengurangan matriks: salinan M1 – M2 */ 
-{
-  indeks i,j;
-  MATRIKS M3;
-
-  MakeMATRIKS(NBrsEff(M1), NKolEff(M2), &M3);
-  for (i = GetFirstIdxBrs(M1); IsIdxEff(M1, i, GetFirstIdxKol(M1)); i++) {
-    for (j = GetFirstIdxKol(M1); IsIdxEff(M1, i, j); j++) {
-      Elmt(M3, i, j) = Elmt(M1, i, j) - Elmt(M2, i, j);
-    }
-  }
-
-  return M3;
-
-}
-
-MATRIKS KaliMATRIKS (MATRIKS M1, MATRIKS M2)
-/* Prekondisi : Ukuran kolom efektif M1 = ukuran baris efektif M2 */
-/* Mengirim hasil perkalian matriks: salinan M1 * M2 */
-{
-  indeks i,j,k;
-  MATRIKS M3;
-
-  MakeMATRIKS(NBrsEff(M1), NKolEff(M2), &M3);
-  for (i = GetFirstIdxBrs(M1); i <= GetLastIdxBrs(M1); i++) {
-    for (j = GetFirstIdxKol(M2); j <= GetLastIdxKol(M2); j++) {
-      Elmt(M3, i, j) = 0;
-      for (k = GetFirstIdxKol(M1); k <= GetLastIdxKol(M1); k++) {
-        Elmt(M3, i, j) += Elmt(M1, i, k) * Elmt(M2, k, j);
-      }
-    }
-  }
-
-  return M3;
-}
-
-MATRIKS KaliKons (MATRIKS M, ElType X)
-/* Mengirim hasil perkalian setiap elemen M dengan X */
-{
-  indeks i,j;
-  MATRIKS MHsl;
-
-  MakeMATRIKS(NBrsEff(M), NKolEff(M), &MHsl);
-  for (i = GetFirstIdxBrs(M); IsIdxEff(M, i, GetFirstIdxKol(M)); i++) {
-    for (j = GetFirstIdxKol(M); IsIdxEff(M, i, j); j++) {
-      Elmt(MHsl, i, j) = Elmt(M, i, j) * X;
-    }
-  }
-
-  return MHsl;
-}
-void PKaliKons (MATRIKS * M, ElType K)
-/* I.S. M terdefinisi, K terdefinisi */
-/* F.S. Mengalikan setiap elemen M dengan K */
-{
-  CopyMATRIKS(KaliKons(*M, K), M);
-}
-
-/* ********** KELOMPOK OPERASI RELASIONAL TERHADAP MATRIKS ********** */
-boolean EQMATRIKS (MATRIKS M1, MATRIKS M2)
-/* Mengirimkan true jika M1 = M2, yaitu NBElmt(M1) = NBElmt(M2) dan */
-/* untuk setiap i,j yang merupakan indeks baris dan kolom M1(i,j) = M2(i,j) */
-/* Juga merupakan strong EQ karena GetFirstIdxBrs(M1) = GetFirstIdxBrs(M2) 
-   dan GetLastIdxKol(M1) = GetLastIdxKol(M2) */
-{
-  indeks i, j;
-  boolean bEQ = true;
-
-  if (NBrsEff(M1) != NBrsEff(M2) || NKolEff(M1) != NKolEff(M2)) {
-    return false;
-  } else {
-    i = GetFirstIdxBrs(M1);
-    while (bEQ && IsIdxEff(M1, i, GetFirstIdxKol(M1))) {
-      j = GetFirstIdxKol(M1);
-      while (bEQ && IsIdxEff(M1, i, j)) {
-        if (Elmt(M1, i, j) != Elmt(M2, i, j)) {
-          bEQ = false;
+        else
+        {
+            printf("%d  ",i);
         }
-        j++;
-      }
-      i++;
     }
+    printf("\n");
+    printf("  ");
+    for (i=0;i<(5+4*(NBrsEff(M)-1));i++)
+    {
+        if(i%4==0)
+        {
+            idxRow++;
+            cR=0;
+        }
+        for (j=-1;j<(5+4*(NKolEff(M)-1));j++)
+        {
 
-    return bEQ;
+            cC++;
+            /* Print nomor atas */
+            if(j==-1)
+            {
+                if(cR==2)
+                {
+                    /* Nomor baris */
+                    printf("%d",idxRow);
+                    if(idxRow<10){
+                      printf("  ");
+                    } else {
+                      printf(" ");
+                    }
+                }
+                else
+                {
+                    printf("   ");
+                }
+            }
+            else
+            {
+                /* Print Elemen Matriks */
+                if(j%4==0)
+                {
+                    idxCol++;
+                }
+                if(i%4==0||j%4==0)
+                {
+                    printf("*");
+                    cC=0;
+                }
+                else
+                {
+                    if(cR==1&&cC==2)
+                    {
+                        printf("%c", M.Mem[idxRow][idxCol].Terrain.Type);
+                    }
+                    else if (cR==2&&cC==2)
+                    {
+                        printf("%c", M.Mem[idxRow][idxCol].Unit.Type);
+                    }
+                    else {
+                        printf(" ");
+                    }
+                }
+            }
+        }
+        printf("\n  ");
+        cR++;
+        idxCol=-1;
+    }
+    printf ("\n");
+}
+
+void Map_CreateCastle(MATRIKS *M, POINT P, int Owner)
+/* Membuat Castle pada map */
+/* Point di parameter menunjukkan lokasi Castle akan dibuat */
+{
+  int baris = P.X;
+  int kolom = P.Y;
+
+  M->Mem[baris][kolom].Terrain.Location.X = P.X;
+  M->Mem[baris][kolom].Terrain.Location.Y = P.Y;
+  M->Mem[baris][kolom].Terrain.Owner = Owner;
+  M->Mem[baris][kolom].Terrain.Type = 'C';
+}
+
+void Map_CreateAdjacentCastle(MATRIKS *M, POINT Po, int Owner)
+/* Membuat Castle yang adjacent dengan tower player */
+/* Point Po menunjukkan lokasi Tower */
+/* Dipakai di initial state */
+{
+  POINT atas,bawah,kiri,kanan;
+
+  atas.X = Po.X;
+  atas.Y = Po.Y-1;
+  bawah.X = Po.X;
+  bawah.Y = Po.Y+1;
+  kiri.X = Po.X-1;
+  kiri.Y = Po.Y;
+  kanan.X = Po.X+1;
+  kanan.Y = Po.Y;
+
+  Map_CreateCastle(M, atas, Owner);
+  Map_CreateCastle(M, bawah, Owner);
+  Map_CreateCastle(M, kiri, Owner);
+  Map_CreateCastle(M, kanan, Owner);
+}
+
+void Map_SpawnVillage(MATRIKS *M)
+/* Membuat villages secara acak di map */
+{
+  int X, Y;
+  boolean occupied = true;
+  int i;
+
+  for(i=0;i<3;i++){
+    do {
+      X = rand() % NBrsEff(*M);
+      Y = rand() % NKolEff(*M);
+
+      if(PElmt(M,X,Y).Terrain.Owner == NotOwned) {
+        occupied = false;
+      }
+    } while(occupied == true);
+
+    PElmt(M,X,Y).Terrain.Owner = NotOwned;
+    PElmt(M,X,Y).Terrain.Type = 'V';
   }
+
 }
 
-boolean NEQMATRIKS (MATRIKS M1, MATRIKS M2)
-/* Mengirimkan true jika M1 tidak sama dengan M2 */
+void Map_AcquiateVillage(UNIT *U, TERRAIN *V)
+/* Unit mengakuisisi village yang satu petak dengan unit tersebut */
 {
-  return !EQ(M1, M2);
+  V->Owner = U->Owner;
+  U->Movement = 0;
 }
 
-boolean EQSizeMATRIKS (MATRIKS M1, MATRIKS M2)
-/* Mengirimkan true jika ukuran efektif matriks M1 sama dengan ukuran efektif M2 */
-/* yaitu GetBrsEff(M1) = GetNBrsEff (M2) dan GetNKolEff (M1) = GetNKolEff (M2) */
+void Map_Heal(MATRIKS *M, POINT P, int N)
+/* Meningkatkan health unit yang berada di Point P sebesar N */
 {
-  return !(NBrsEff(M1) != NBrsEff(M2) || NKolEff(M1) != NKolEff(M2));
+  int X = P.X;
+  int Y = P.Y;
+
+  PElmt(M,X,Y).Unit.Health += N;
 }
 
-/* ********** Operasi lain ********** */
-int NBElmtMatriks (MATRIKS M)
-/* Mengirimkan banyaknya elemen M */
+void Map_HealAdjacent(MATRIKS *M, POINT Po, int N)
+/* Meningkatkan Health untuk unit-unit yang berada adjacent dengan White Mage */
+/* Point P = Posisi White Mage, N = jumlah health yang diheal */ 
 {
-  return NBrsEff(M) * NKolEff(M);
+  POINT atas, bawah, kiri, kanan;
+
+  atas.X = Po.X;
+  atas.Y = Po.Y-1;
+  bawah.X = Po.X;
+  bawah.Y = Po.Y+1;
+  kiri.X = Po.X-1;
+  kiri.Y = Po.Y;
+  kanan.X = Po.X+1;
+  kanan.Y = Po.Y;
+
+  Map_Heal(M, atas, N);
+  Map_Heal(M, bawah, N);
+  Map_Heal(M, kiri, N);
+  Map_Heal(M, kanan, N);
+}
+
+TERRAIN Map_CreateEmptyTerrain(POINT P)
+/* Membuat terrain kosong */
+{
+  TERRAIN T;
+  T.Location.X = P.X;
+  T.Location.Y = P.Y;
+  T.Owner = 0;
+  T.Type = ' ';
+
+  return T;
 }

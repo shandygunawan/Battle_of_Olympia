@@ -2,16 +2,18 @@
 #define PLAYER_H
 
 #include <stdio.h>
-#include "globalconst.h"
 #include "boolean.h"
-#include "listdp.h"
+#include "globalconst.h"
+#include "listu.h"
+#include "listt.h"
 
+/********************* DEFINISI Tipe PLAYER **********************/
 
-/**************************** Definisi tipe Player ****************************/
-
+/* Definisi */
 typedef struct {
 	ListU Unit;
 	ListT Village;
+	POINT Tower;
 	int Number; /* Urutan player kayak di PS */
 	int Gold;
 	int Income;
@@ -19,16 +21,35 @@ typedef struct {
 	char Color;	
 } PLAYER;
 
-/**************************** Fungsi dan Prosedur ****************************/
+/* Macro PLAYER */
+#define ListUnit(P) (P).Unit
+#define ListVillage(P) (P).Village
+#define Tower(P) (P).Tower
+#define Number(P) (P).Number
+#define Gold(P) (P).Gold
+#define Income(P) (P).Income
+#define Upkeep(P) (P).Upkeep
+#define Color(P) (P).Color
+
+#define PListUnit(P) (P)->Unit
+#define PListVillage(P) (P)->Village
+#define PTower(P) (P)->Tower
+#define PNumber(P) (P)->Number
+#define PGold(P) (P)->Gold
+#define PIncome(P) (P)->Income
+#define PUpkeep(P) (P)->Upkeep
+#define PColor(P) (P)->Color
+
+/********************* Fungsi dan Prosedur **********************/
 PLAYER Player_Init(int Order);
 /* Membuat player untuk game */
 /* Order menunjukkan urutan pemain */
 
-void Player_PrintTurn(PLAYER P, char *Player_Input);
-/* Menampilkan informasi singkat mengenai pemain saat turn-nya */
-
 void Player_PrintUnit(ListU L);
-/* Menampilkan unit-unit yang dimiliki player */
+/* Menampilkan Unit yang dimiliki Player */
+
+void Player_PrintTurn(PLAYER P);
+/* Menampilkan informasi mengenai Player saat turn Player yang bersangkutan */
 
 boolean Player_Lose(PLAYER P);
 /* Menghasilkan true jika player P sudah kalah */

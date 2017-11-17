@@ -1,5 +1,24 @@
 #include "unit.h"
 
+
+/************ UNIT *********************/
+UNIT Unit_CreateEmpty(POINT P)
+{
+	UNIT U;
+
+	U.Location = P;
+	U.Type = ' ';
+	U.Owner = 0;
+	U.Max_Health = 50;
+	U.Health = 50;
+	U.Attack = 10;
+	U.Movement = 1;
+	U.Attack_Type = Melee;
+	U.Price = 0;
+	boolean Attack_Chance = false;
+    return U;
+}
+
 UNIT Unit_Init(char type, POINT P, int owner)
 /* Mengirimkan stat awal untuk unit yang diinginkan berdasarkan parameter type */
 /* Unit : King(K), Swordsman(S), Archer(A), WhiteMage(W) */
@@ -62,24 +81,6 @@ UNIT Unit_Init(char type, POINT P, int owner)
 	return U;
 }
 
-UNIT Unit_CreateEmpty()
-{
-	UNIT U;
-
-	U.Location = P;
-	U.Type = ' ';
-	U.Owner = 0;
-	U.Max_Health = 50;
-	U.Health = 50;
-	U.Attack = 10;
-	U.Movement = 1;
-	U.Attack_Type = Melee;
-	U.Price = 0;
-	boolean Attack_Chance = false;
-
-}
-
-/* Minta eka buat probabilitas serangan */
 void Unit_Battle(UNIT *U1, UNIT *U2)
 /* Melakukan serangan antara Unit 1 dan Unit 2 */
 /* U1 menyerang U2 */
@@ -111,11 +112,4 @@ void Unit_Battle(UNIT *U1, UNIT *U2)
 			U2->Health = U2->Health - U1->Attack;			
 		}
 	}
-}
-
-void Unit_Heal(UNIT *U)
-/* Meningkatkan Health untuk unit-unit yang berada adjacent dengan White Mage */
-/* Unit W = White Mage, U = Unit yang akan di-heal */ 
-{
-	U->Health += 5;
 }
