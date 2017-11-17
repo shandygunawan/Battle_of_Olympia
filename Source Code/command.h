@@ -15,8 +15,10 @@ void Command_Recruit(MATRIKS *M, PLAYER *P);
 
 void Command_Info(MATRIKS M);
 
+void Command_ChangeUnit(MATRIKS *M, PLAYER *P);
+
+void Command_ControlUnit(MATRIKS *M, ListU *L);
+
 void Command_Input(MATRIKS *M, PLAYER *P, boolean *finalstate);
-
-
 
 #endif

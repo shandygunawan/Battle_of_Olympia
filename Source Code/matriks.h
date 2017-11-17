@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "boolean.h"
 #include "globalconst.h"
+#include "pcolor.h"
 #include "point.h"
 #include "unit.h"
 

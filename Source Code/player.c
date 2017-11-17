@@ -12,60 +12,14 @@ PLAYER Player_Init(int Order)
   P.Gold = 100;
   P.Income = 0;
   P.Upkeep = 0;
-
-  if(Order == 1) { /* Pemain urutan 1 */
-    P.Color = 'M'; /* Warna Merah */
-  }
-  else if(Order == 2) { /* Pemain urutan 2 */
-    P.Color = 'B'; /* Warna Biru */
-  }
-  else if(Order == 3) { /* Pemain urutan 3 */
-    P.Color = 'K'; /* Warna Kuning */
-  }
-  else if(Order == 4) { /* Pemain urutan 2 */
-    P.Color = 'H'; /* Warna Hijau */
-  }
   return P;
 }
 
-void Player_PrintUnit(ListU L){ 
-  if(!ListU_IsEmpty(L)){
-    addressU P = First(L);
-    
-    while(P != Nil){
-      printf("Unit : ");
-      if(Unit(P).Type == 'K'){
-        printf("King");
-      } else if (Unit(P).Type == 'A') {
-        printf("Archer");
-      } else if (Unit(P).Type == 'S') {
-        printf("Swordsman");
-      } else if (Unit(P).Type == 'W') {
-        printf("White Mage");
-      }
-      printf(" (%d,%d) ", Unit(P).Location.Y, Unit(P).Location.X);
-      printf(" | ");
-      printf("Health : %d/%d", Unit(P).Health, Unit(P).Max_Health);
-      printf(" | ");
-      printf("Movement Point : %d", Unit(P).Movement);
-      printf(" | ");
-      printf("Can Attack : ");
-
-      if(Unit(P).Attack_Chance == true){
-        printf("yes\n");
-      }
-      else {
-        printf("no\n");
-      }
-      P = Next(P);
-    }
-  }
-}
 
 void Player_PrintTurn(PLAYER P){
   printf("Player %d's Turn\n", P.Number);
   printf("Cash : %dG | Income : %dG | Upkeep : %dG\n", P.Gold, P.Income, P.Upkeep);
-  Player_PrintUnit(P.Unit);
+  Player_PrintUnit(ListUnit(P));
   printf("\n");
 }
 

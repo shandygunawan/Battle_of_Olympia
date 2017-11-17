@@ -304,3 +304,33 @@ void ListU_DelULast (ListU *L, UNIT *U)
     *U = Unit(P);
     ListU_Dealokasi(P);
 }
+
+void Player_PrintUnit(ListU L)
+/* Menampilkan Unit yang dimiliki Player */
+{     
+  UNIT U = Unit(First(L));
+  printf("Unit : ");
+  if(Type(U) == 'K'){
+    printf("King");
+  } else if (Type(U) == 'A') {
+    printf("Archer");
+  } else if (Type(U) == 'S') {
+    printf("Swordsman");
+  } else if (Type(U) == 'W') {
+    printf("White Mage");
+  }
+  printf(" (%d,%d) ", LocationY(U), LocationX(U));
+  printf(" | ");
+  printf("Health : %d/%d", Health(U), MaxHealth(U));
+  printf(" | ");
+  printf("Movement Point : %d", Movement(U));
+  printf(" | ");
+  printf("Can Attack : ");
+
+  if(AttackChance(U) == true){
+    printf("yes\n");
+  }
+  else {
+    printf("no\n");
+  }
+}

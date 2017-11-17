@@ -5,34 +5,39 @@
 
 void Command_Recruit(MATRIKS *M, PLAYER *P) {
 	int baris,kolom;
-	addressU King = ListU_SearchType(PListUnit(P), 'K');
-	boolean KinginTower = true;
+	UNIT K = Unit(First(PListUnit(P)));
 	POINT Po;
 	int unit;
 	char cont;
+	boolean KinginTower = true;
 
-	if (Unit(King).Location.X != PTower(P).X || Unit(King).Location.Y != PTower(P).Y) {
-		printf("You can't recruit. Your king is not in the Tower.\n");
-		KinginTower = false;
-	} else {
-		for(;;){
-			printf("Enter Coordinate of empty castle : "); scanf("%d %d", &kolom, &baris);
+	if(Type(K) == 'K'){
+		if (LocationX(K) != PTower(P).X || LocationY(K) != PTower(P).Y) {
+			printf("You can't recruit. Your king is not in the Tower.\n");
+			KinginTower = false;
+		} else {
+			for(;;){
+				printf("Enter Coordinate of empty castle : "); scanf("%d %d", &kolom, &baris);
 
-			/* Cek kondisi Map pada koordinat yang dipilih */
-			if(PElmt(M,baris,kolom).Terrain.Type != 'C') { /* Koordinat Input bukan castle */
-				printf("That is not a castle!\n");
-			} else { /* Koordinat input adalah castle */
-				if(PElmt(M,baris,kolom).Terrain.Owner != PNumber(P)){ /* Castle punya pemain lain */
-					printf("That is not your castle!\n");
-				} else { /* Castle punya pemain */
-					if( (PElmt(M,baris,kolom).Unit.Type == 'A') || (PElmt(M,baris,kolom).Unit.Type == 'W') || (PElmt(M,baris,kolom).Unit.Type == 'S') ) { /* ada unit di castle */
-						printf("The Castle is occupied!\n");
-					} else {
-						break;
+				/* Cek kondisi Map pada koordinat yang dipilih */
+				if(PElmt(M,baris,kolom).Terrain.Type != 'C') { /* Koordinat Input bukan castle */
+					printf("That is not a castle!\n");
+				} else { /* Koordinat input adalah castle */
+					if(PElmt(M,baris,kolom).Terrain.Owner != PNumber(P)){ /* Castle punya pemain lain */
+						printf("That is not your castle!\n");
+					} else { /* Castle punya pemain */
+						if( (PElmt(M,baris,kolom).Unit.Type == 'A') || (PElmt(M,baris,kolom).Unit.Type == 'W') || (PElmt(M,baris,kolom).Unit.Type == 'S') ) { /* ada unit di castle */
+							printf("The Castle is occupied!\n");
+						} else {
+							break;
+						}
 					}
 				}
 			}
 		}
+	} else {
+		printf("You are not a king.\n");
+		KinginTower = false;
 	}
 
 	Po.X = baris;
@@ -136,11 +141,35 @@ void Command_Info(MATRIKS M)
 	printf("-----------------------\n\n");
 }
 
+void Command_ChangeUnit(MATRIKS *M, PLAYER *P)
+{
+	UNIT U;
+
+	ListU_DelUFirst(&PListUnit(P), &U);
+	
+	int X = LocationX(U);
+	int Y = LocationY(U);	
+
+	PElmt(M,X,Y).Unit.Owner = PNumber(P);
+	U.Owner = PNumber(P);
+	ListU_InsULast(&PListUnit(P), U);
+}
+
+void Command_ControlUnit(MATRIKS *M, ListU *L)
+{
+	int X = Unit(First(*L)).Location.X;
+	int Y = Unit(First(*L)).Location.Y;
+
+	PElmt(M,X,Y).Unit.Owner = Controlled;
+	Unit(First(*L)).Owner = Controlled;
+}
+
 void Command_Input(MATRIKS *M, PLAYER *P, boolean *finalstate)
 {
-	char command[50];	
+	char command[50];
 
 	for(;;){
+		Command_ControlUnit(M, &PListUnit(P));
 		Player_PrintTurn(*P);
 		printf("Your Input : ");
 		scanf("%s", &command);
@@ -151,6 +180,8 @@ void Command_Input(MATRIKS *M, PLAYER *P, boolean *finalstate)
 			Command_Info(*M);
 		} else if(strcmp("MAP", command) == 0) {
 			Map_Print(*M);
+		} else if(strcmp("CHANGE_UNIT", command) == 0) {
+			Command_ChangeUnit(M, P);
 		} else if(strcmp("END_TURN", command) == 0) {
 			printf("\n");
 			break;
@@ -158,15 +189,13 @@ void Command_Input(MATRIKS *M, PLAYER *P, boolean *finalstate)
 			exit(0);
 		}
 	}
+}
 
 	/*
 	if(command == "MOVE") {
 		Command_Move();
 	} else if(command == "UNDO") {
 		Command_Undo();
-	} else if(command == "CHANGE_UNIT") {
-		Command_ChangeUnit();
 	} else if(command == "ATTACK") {
 		Command_Attack();
 	*/
-}

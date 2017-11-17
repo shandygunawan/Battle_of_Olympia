@@ -17,6 +17,7 @@
 
 /* Untuk Map */
 #define NotOwned 0
+#define Controlled 10
 #define Empty ' '
 
 /* untuk objek game */

@@ -17,8 +17,7 @@ typedef struct {
 	int Number; /* Urutan player kayak di PS */
 	int Gold;
 	int Income;
-	int Upkeep;
-	char Color;	
+	int Upkeep;	
 } PLAYER;
 
 /* Macro PLAYER */
@@ -44,9 +43,6 @@ typedef struct {
 PLAYER Player_Init(int Order);
 /* Membuat player untuk game */
 /* Order menunjukkan urutan pemain */
-
-void Player_PrintUnit(ListU L);
-/* Menampilkan Unit yang dimiliki Player */
 
 void Player_PrintTurn(PLAYER P);
 /* Menampilkan informasi mengenai Player saat turn Player yang bersangkutan */

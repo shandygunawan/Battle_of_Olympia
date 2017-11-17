@@ -34,6 +34,17 @@ typedef struct {
 #define Price(U) (U).Price
 #define AttackChance(U) (U).Attack_Chance
 
+#define PLocationX(U) (U)->Location.X
+#define PLocationY(U) (U)->Location.Y
+#define PType(U) (U)->Type
+#define POwner(U) (U)->Owner
+#define PMaxHealth(U) (U)->Max_Health
+#define PHealth(U) (U)->Health
+#define PAttack(U) (U)->Attack
+#define PMovement(U) (U)->Movement
+#define PAttackType(U) (U)->Attack_Type
+#define PPrice(U) (U)->Price
+#define PAttackChance(U) (U)->Attack_Chance
 
 /***************************** Fungsi & Prosedur ********************/
 UNIT Unit_CreateEmpty(POINT P);

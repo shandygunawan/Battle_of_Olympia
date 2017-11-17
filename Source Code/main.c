@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "boolean.h"
 #include "globalconst.h"
+#include "pcolor.h"
 #include "point.h"
 #include "unit.h"
 #include "listu.h"
@@ -36,6 +37,7 @@ void Main_InitState(MATRIKS *M, Queue *Q)
             
             /* Buat king */
             M->Mem[(M->NKolEff-2)][1].Unit = Unit_Init('K', location, i);
+            M->Mem[(M->NKolEff-2)][1].Unit.Owner = Controlled;
             ListU_InsULast(&P.Unit, M->Mem[(M->NKolEff-2)][1].Unit);
         }
 

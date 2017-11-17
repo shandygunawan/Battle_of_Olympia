@@ -74,66 +74,83 @@ void Map_Print(MATRIKS M)
     printf("  ");
     for (i=0;i<(5+4*(NBrsEff(M)-1));i++)
     {
-        if(i%4==0)
-        {
-            idxRow++;
-            cR=0;
-        }
-        for (j=-1;j<(5+4*(NKolEff(M)-1));j++)
-        {
+      if(i%4==0)
+      {
+          idxRow++;
+          cR=0;
+      }
+      for (j=-1;j<(5+4*(NKolEff(M)-1));j++)
+      {
 
-            cC++;
-            /* Print nomor atas */
-            if(j==-1)
-            {
-                if(cR==2)
+          cC++;
+          /* Print nomor atas */
+          if(j==-1)
+          {
+              if(cR==2)
+              {
+                  /* Nomor baris */
+                  printf("%d",idxRow);
+                  if(idxRow<10){
+                    printf("  ");
+                  } else {
+                    printf(" ");
+                  }
+              }
+              else
+              {
+                  printf("   ");
+              }
+          }
+          else
+          {
+              /* Print Elemen Matriks */
+              if(j%4==0)
+              {
+                  idxCol++;
+              }
+              if(i%4==0||j%4==0)
+              {
+                  printf("*");
+                  cC=0;
+              }
+              else
+              {
+                if(cR==1&&cC==2)
                 {
-                    /* Nomor baris */
-                    printf("%d",idxRow);
-                    if(idxRow<10){
-                      printf("  ");
-                    } else {
-                      printf(" ");
-                    }
+                  if(Elmt(M,idxRow,idxCol).Terrain.Owner == 1){
+                      print_red(Elmt(M,idxRow,idxCol).Terrain.Type);
+                  } else if(Elmt(M,idxRow,idxCol).Terrain.Owner == 2){
+                      print_blue(Elmt(M,idxRow,idxCol).Terrain.Type);
+                  } else if(Elmt(M,idxRow,idxCol).Terrain.Owner == 3){
+                      print_yellow(Elmt(M,idxRow,idxCol).Terrain.Type);
+                  } else {
+                      printf("%c",Elmt(M,idxRow,idxCol).Terrain.Type);
+                  }
                 }
-                else
+                else if (cR==2&&cC==2)
                 {
-                    printf("   ");
+                  if(Elmt(M,idxRow,idxCol).Unit.Owner == 1){
+                      print_red(Elmt(M,idxRow,idxCol).Unit.Type);
+                  } else if(Elmt(M,idxRow,idxCol).Unit.Owner == 2){
+                      print_blue(Elmt(M,idxRow,idxCol).Unit.Type);
+                  } else if(Elmt(M,idxRow,idxCol).Unit.Owner == Controlled){
+                      print_green(Elmt(M,idxRow,idxCol).Unit.Type);
+                  }
+                  else {
+                      printf("%c",Elmt(M,idxRow,idxCol).Unit.Type);
+                  }
                 }
-            }
-            else
-            {
-                /* Print Elemen Matriks */
-                if(j%4==0)
-                {
-                    idxCol++;
+                else {
+                    printf(" ");
                 }
-                if(i%4==0||j%4==0)
-                {
-                    printf("*");
-                    cC=0;
-                }
-                else
-                {
-                    if(cR==1&&cC==2)
-                    {
-                        printf("%c", M.Mem[idxRow][idxCol].Terrain.Type);
-                    }
-                    else if (cR==2&&cC==2)
-                    {
-                        printf("%c", M.Mem[idxRow][idxCol].Unit.Type);
-                    }
-                    else {
-                        printf(" ");
-                    }
-                }
-            }
-        }
-        printf("\n  ");
-        cR++;
-        idxCol=-1;
-    }
-    printf ("\n");
+              }
+          }
+      }
+      printf("\n  ");
+      cR++;
+      idxCol=-1;
+  }
+  printf ("\n");
 }
 
 void Map_CreateCastle(MATRIKS *M, POINT P, int Owner)
@@ -188,7 +205,7 @@ void Map_SpawnVillage(MATRIKS *M)
       }
     } while(occupied == true);
 
-    PElmt(M,X,Y).Terrain.Owner = NotOwned;
+    PElmt(M,X,Y).Terrain.Owner = 3;
     PElmt(M,X,Y).Terrain.Type = 'V';
   }
 
