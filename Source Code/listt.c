@@ -39,7 +39,7 @@ void ListT_Dealokasi (addressT P)
   free(P);
 }
 
-addressT ListT_SearchVillage (ListT L)
+addressT ListT_SearchVillage (ListT L, TERRAIN V)
 /* Mencari apakah ada elemen ListT dengan P->info= X */
 /* Jika ada, mengirimkan addressT elemen tersebut. */
 /* Jika tidak ada, mengirimkan Nil */
@@ -50,7 +50,7 @@ addressT ListT_SearchVillage (ListT L)
 
   if(!ListT_IsEmpty(L)) {
     do {
-      if(Terrain(P).Type == 'V') {
+      if( (Terrain(P).Location.X == V.Location.X) && (Terrain(P).Location.Y == V.Location.Y) && (Terrain(P).Type == V.Type) && (Terrain(P).Owner == V.Owner) ){
         addfound = P;
         found = true;
       } else
@@ -233,4 +233,27 @@ void ListT_DelVLast (ListT *L, TERRAIN * X)
   ListT_DelLast(&*L,&del);
   *X = Terrain(del);
   ListT_Dealokasi(del);
+}
+
+void ListT_CheckandDelete(ListT *L, TERRAIN X)
+/* Mencari terrain X di ListT L dan menghapusnya jika ada */
+{
+  addressT check = ListT_SearchVillage(*L, X);
+
+  if(check != Nil) {
+    ListT_DelP(L, X);
+  }
+}
+
+int ListT_NBElmt(ListT L)
+/* Menghasilkan jumlah elemen list */
+{
+  addressT P = First(L);
+  int count = 0;
+
+  while(P != Nil) {
+    count++;
+    P = Next(P);
+  }
+  return count;
 }

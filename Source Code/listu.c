@@ -305,10 +305,9 @@ void ListU_DelULast (ListU *L, UNIT *U)
     ListU_Dealokasi(P);
 }
 
-void Player_PrintUnit(ListU L)
+void Player_PrintUnit(UNIT U)
 /* Menampilkan Unit yang dimiliki Player */
 {     
-  UNIT U = Unit(First(L));
   printf("Unit : ");
   if(Type(U) == 'K'){
     printf("King");
@@ -333,4 +332,17 @@ void Player_PrintUnit(ListU L)
   else {
     printf("no\n");
   }
+}
+
+int ListU_NBElmt(ListU L)
+/* Menghasilkan jumlah elemen list */
+{
+  addressU P = First(L);
+  int count = 0;
+
+  while(P != Nil) {
+    count++;
+    P = Next(P);
+  }
+  return count;
 }

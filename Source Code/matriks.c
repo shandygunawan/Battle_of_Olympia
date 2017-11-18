@@ -196,6 +196,7 @@ void Map_SpawnVillage(MATRIKS *M)
   int i;
 
   for(i=0;i<3;i++){
+    srand(time(NULL));
     do {
       X = rand() % NBrsEff(*M);
       Y = rand() % NKolEff(*M);
@@ -258,4 +259,131 @@ TERRAIN Map_CreateEmptyTerrain(POINT P)
   T.Type = ' ';
 
   return T;
+}
+
+void Map_ShowMovement(MATRIKS *M, UNIT U, int Owner)
+/* Menunjukkan area pergerakan pemain ditandai dgn # */
+{
+  int i,x,y;
+
+  x = LocationX(U);
+  y = LocationY(U);
+
+  /* print ke kanan */
+  for(i=1;i<=Movement(U);i++) {
+    if(x+i <= PNKolEff(M)) {
+      if(PElmt(M,x+i,y).Unit.Type != ' '){
+        if(Owner != PElmt(M,y,x+i).Unit.Owner) {
+          break;
+        }
+      }
+      else {
+        PElmt(M,x+i,y).Unit.Type = '#';
+      }
+    }
+    else {
+      break;
+    }
+  }
+
+  /* Print ke kiri */
+  x = LocationX(U);
+  for(i=1;i<=Movement(U);i++) {
+    if(x-i >= 0) {
+      if(PElmt(M,x-i,y).Unit.Type != ' '){
+        if(Owner != PElmt(M,x-i,y).Unit.Owner) {
+          break;
+        }
+      }
+      else {
+        PElmt(M,x-i,y).Unit.Type = '#';
+      }
+    }
+    else {
+      break;
+    }
+  }
+
+  /* Print ke bawah */
+  y = LocationY(U);
+  for(i=1;i<=Movement(U);i++) {
+    if(y+i <= PNBrsEff(M)) {
+      if(PElmt(M,x,y+i).Unit.Type != ' ') {
+        if(Owner != PElmt(M,x,y+i).Unit.Owner) {
+          break;
+        }
+      } else {
+        PElmt(M,x,y+i).Unit.Type = '#';
+      }
+    } else {
+      break;
+    }
+  }
+  
+  y = LocationY(U);
+  for(i=1;i<=Movement(U);i++) {
+    if(y-i >= 0) {
+      if(PElmt(M,x,y-i).Unit.Type != ' ') {
+        if(Owner != PElmt(M,x,y-i).Unit.Owner) {
+          break;
+        }
+      } else {
+        PElmt(M,x,y-i).Unit.Type = '#';
+      }
+    } else {
+      break;
+    }
+  }
+}
+
+void Map_RemoveMovement(MATRIKS *M, UNIT *U)
+/* Menunjukkan area pergerakan pemain ditandai dgn # */
+{
+  int i,x,y;
+  POINT P;
+
+  x = PLocationX(U);
+  y = PLocationY(U);
+
+  /* print ke kanan */
+  for(i=1;i<=PMovement(U);i++) {
+    if(x+i <= PNKolEff(M)) {
+      if(PElmt(M,x+i,y).Unit.Type == '#'){
+        P.X = x+i; P.Y = y;
+        PElmt(M,x+i,y).Unit = Unit_CreateEmpty(P);
+      }
+    }
+  }
+
+  /* Print ke kiri */
+  x = PLocationX(U);
+  for(i=1;i<=PMovement(U);i++) {
+    if(x-i >= 0) {
+      if(PElmt(M,x-i,y).Unit.Type == '#'){
+        P.X = x-i; P.Y = y;
+        PElmt(M,x-i,y).Unit = Unit_CreateEmpty(P);
+      }
+    }
+  }
+
+  /* Print ke bawah */
+  y = PLocationY(U);
+  for(i=1;i<=PMovement(U);i++) {
+    if(y+i <= PNBrsEff(M)) {
+      if(PElmt(M,x,y+i).Unit.Type == '#') {
+        P.X = x; P.Y = y+i;
+        PElmt(M,x,y+i).Unit = Unit_CreateEmpty(P);
+      }
+    }
+  }
+  
+  y = PLocationY(U);
+  for(i=1;i<=PMovement(U);i++) {
+    if(y-i >= 0) {
+      if(PElmt(M,x,y-i).Unit.Type == '#') {
+        P.X = x; P.Y = y-i;
+        PElmt(M,x,y-i).Unit = Unit_CreateEmpty(P);
+      }
+    }
+  }
 }

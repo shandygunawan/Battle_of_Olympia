@@ -3,6 +3,7 @@
 #include "boolean.h"
 #include "globalconst.h"
 #include "pcolor.h"
+#include "stackt.h"
 #include "point.h"
 #include "unit.h"
 #include "listu.h"
@@ -67,11 +68,12 @@ void Main_PlayingState(MATRIKS *M, Queue *Q)
 {
     int i;
     PLAYER P;
+    TERRAIN T;
     boolean finalstate = false;
 
     for(;;) {
         Queue_Del(Q, &P);
-        Command_Input(M, &P, &finalstate);
+        Command_Input(M, &P,&T, &finalstate);
         if(finalstate == true){
             break;
         } else {
@@ -126,9 +128,11 @@ int main() {
     }
 
     if(menu == 1) {
+        printf("\n");
     	Map_Init(&M);
+        printf("\n");
     	Main_InitState(&M, &Q);
-    	Map_Print(M);
+        Map_ClearScreen();
         Main_PlayingState(&M, &Q);
     }
 }

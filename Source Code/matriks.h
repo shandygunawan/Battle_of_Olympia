@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "boolean.h"
 #include "globalconst.h"
 #include "pcolor.h"
@@ -31,6 +32,8 @@ typedef struct {
 /* Macro Matriks */
 #define NBrsEff(M) (M).NBrsEff
 #define NKolEff(M) (M).NKolEff
+#define PNBrsEff(M) (M)->NBrsEff
+#define PNKolEff(M) (M)->NKolEff
 #define Elmt(M,i,j) (M).Mem[(i)][(j)]
 #define PElmt(M,i,j) (M)->Mem[(i)][(j)]
 
@@ -84,5 +87,11 @@ void Map_HealAdjacent(MATRIKS *M, POINT P, int N);
 
 TERRAIN Map_CreateEmptyTerrain(POINT P);
 /* Membuat terrain kosong */
+
+void Map_ShowMovement(MATRIKS *M, UNIT U, int Owner);
+/* Menunjukkan area pergerakan pemain ditandai dgn # */
+
+void Map_RemoveMovement(MATRIKS *M, UNIT *U);
+/* Menghapus # dari pergerakan unit */
 
 #endif

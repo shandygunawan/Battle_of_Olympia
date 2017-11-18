@@ -15,6 +15,9 @@
 /* Untuk Queue */
 #define Nol 0
 
+/* Untuk Stackt */
+#define MaxElStack 10
+
 /* Untuk Map */
 #define NotOwned 0
 #define Controlled 10

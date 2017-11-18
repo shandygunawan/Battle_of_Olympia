@@ -120,7 +120,10 @@ void ListU_DelULast (ListU *L, UNIT *U);
 /* F.S. Elemen terakhir ListU dihapus: nilai info disimpan pada X */
 /*      dan alamat elemen terakhir di-dealokasi */
 
-void Player_PrintUnit(ListU L);
+void Player_PrintUnit(UNIT U);
 /* Menampilkan Unit yang dimiliki Player */
+
+int ListU_NBElmt(ListU L);
+/* Menghasilkan jumlah elemen list */
 
 #endif

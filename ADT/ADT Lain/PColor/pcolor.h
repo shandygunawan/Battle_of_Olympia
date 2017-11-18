@@ -19,6 +19,7 @@ We only provide 8 colors. Feel free to modify/add colors if you want to.
 #define BLUE "\x1B[34m"
 #define MAGENTA "\x1B[35m"
 #define CYAN "\x1B[36m"
+#define BLINK "\x1B[5m"
 
 void print_red(char c);
 void print_green(char c);

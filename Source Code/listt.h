@@ -36,7 +36,7 @@ void ListT_Dealokasi (addressT P);
 /* F.S. P dikembalikan ke sistem */
 /* Melakukan dealokasi/pengembalian addressT P */
 
-addressT ListT_SearchVillage (ListT L);
+addressT ListT_SearchVillage (ListT L, TERRAIN V);
 /* Mencari apakah ada elemen ListT dengan P->info= X */
 /* Jika ada, mengirimkan addressT elemen tersebut. */
 /* Jika tidak ada, mengirimkan Nil */
@@ -99,5 +99,11 @@ void ListT_DelVLast (ListT *L, TERRAIN * X);
 /* I.S. ListT tidak kosong */
 /* F.S. Elemen terakhir ListT dihapus: nilai info disimpan pada X */
 /*      dan alamat elemen terakhir di-dealokasi */
+
+void ListT_CheckandDelete(ListT *L, TERRAIN X);
+/* Mencari terrain X di ListT L dan menghapusnya jika ada */
+
+int ListT_NBElmt(ListT L);
+/* Menghasilkan jumlah elemen list */
 
 #endif

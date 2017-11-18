@@ -16,10 +16,10 @@ PLAYER Player_Init(int Order)
 }
 
 
-void Player_PrintTurn(PLAYER P){
+void Player_PrintTurn(PLAYER P, UNIT U){
   printf("Player %d's Turn\n", P.Number);
   printf("Cash : %dG | Income : %dG | Upkeep : %dG\n", P.Gold, P.Income, P.Upkeep);
-  Player_PrintUnit(ListUnit(P));
+  Player_PrintUnit(U);
   printf("\n");
 }
 
@@ -36,4 +36,17 @@ boolean Player_Lose(PLAYER P)
   else {
     return false;
   }
+}
+
+void Player_IncreaseMoney(PLAYER *P)
+/* Menambah uang player sesuai jumlah village yang diakuisisi */
+{
+  PGold(P) = PGold(P)+PIncome(P);
+}
+
+
+void Player_DecreaseMoney(PLAYER *P)
+/* Mengurangi uang player sesuai jumlah unit yang dimiliki */
+{
+    PGold(P) = PGold(P)-PUpkeep(P);
 }

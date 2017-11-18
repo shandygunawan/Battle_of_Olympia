@@ -3,16 +3,46 @@
 #include <string.h>
 #include "command.h"
 
-void Command_Recruit(MATRIKS *M, PLAYER *P) {
+void Command_Move(MATRIKS *M, PLAYER *P, UNIT *U, Stack *S, TERRAIN *T)
+{
+	POINT Po;
+	Po.X = PLocationX(U); Po.Y = PLocationY(U);
 	int baris,kolom;
-	UNIT K = Unit(First(PListUnit(P)));
+	printf("Please enter cell's coordinate x y : ");
+	scanf("%d %d", &kolom, &baris);
+
+	if(PElmt(M,baris,kolom).Unit.Type != '#') {
+		printf("You can't move there.\n");
+	} else {
+		Map_RemoveMovement(M, U);
+		PElmt(M,Po.X,Po.Y).Unit = Unit_CreateEmpty(Po);
+		PLocationX(U) = baris;
+		PLocationY(U) = kolom;
+		PElmt(M,baris,kolom).Unit = *U;
+		printf("You have successfully moved to (%d,%d)\n", kolom, baris);
+
+		if(PElmt(M,baris,kolom).Terrain.Type == 'V') {
+			PElmt(M,baris,kolom).Terrain.Owner = PNumber(P);
+			ListT_InsVLast(&PListVillage(P), PElmt(M,baris,kolom).Terrain);
+			printf("You also have successfully acquire the village.\n");
+			*T = PElmt(M,baris,kolom).Terrain;
+			PIncome(P) = PIncome(P)+5;
+		}
+
+	}
+	printf("\n");
+}
+
+void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
+{
+	int baris,kolom;
 	POINT Po;
 	int unit;
 	char cont;
 	boolean KinginTower = true;
 
-	if(Type(K) == 'K'){
-		if (LocationX(K) != PTower(P).X || LocationY(K) != PTower(P).Y) {
+	if(Type(U) == 'K'){
+		if (LocationX(U) != PTower(P).X || LocationY(U) != PTower(P).Y) {
 			printf("You can't recruit. Your king is not in the Tower.\n");
 			KinginTower = false;
 		} else {
@@ -58,6 +88,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P) {
 				PElmt(M,baris,kolom).Unit = Unit_Init('A',Po, PNumber(P));
 				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
 				PGold(P) = PGold(P)-5;
+				PUpkeep(P) = PUpkeep(P)+1;
 				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
 
 			} else if(unit == 2){
@@ -65,6 +96,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P) {
 				PElmt(M,baris,kolom).Unit = Unit_Init('S',Po, PNumber(P));
 				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
 				PGold(P) = PGold(P)-5;
+				PUpkeep(P) = PUpkeep(P)+1;
 				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
 			
 			} else if(unit == 3){
@@ -73,6 +105,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P) {
 				PElmt(M,baris,kolom).Unit = Unit_Init('W',Po,PNumber(P));
 				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
 				PGold(P) = PGold(P)-10;
+				PUpkeep(P) = PUpkeep(P)+1;
 				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
 			}
 		} else {
@@ -141,61 +174,113 @@ void Command_Info(MATRIKS M)
 	printf("-----------------------\n\n");
 }
 
-void Command_ChangeUnit(MATRIKS *M, PLAYER *P)
+void Command_ReleaseUnit(MATRIKS *M, PLAYER *P, UNIT *U)
 {
-	UNIT U;
-
-	ListU_DelUFirst(&PListUnit(P), &U);
-	
-	int X = LocationX(U);
-	int Y = LocationY(U);	
+	int X = PLocationX(U);
+	int Y = PLocationY(U);
 
 	PElmt(M,X,Y).Unit.Owner = PNumber(P);
-	U.Owner = PNumber(P);
-	ListU_InsULast(&PListUnit(P), U);
+	POwner(U) = PNumber(P);
+	Map_RemoveMovement(M, U);
 }
 
-void Command_ControlUnit(MATRIKS *M, ListU *L)
+void Command_ChangeUnit(MATRIKS *M, PLAYER *P, UNIT *U)
 {
-	int X = Unit(First(*L)).Location.X;
-	int Y = Unit(First(*L)).Location.Y;
+	Command_ReleaseUnit(M, P, U);
+	int N, i=1;
+	addressU addr = First(PListUnit(P));
+
+	printf("== List of Unit(s) ==\n");
+	while(addr != Nil) {
+		printf("%d. ", i);
+		Player_PrintUnit(Unit(addr));
+		i++;
+		addr = Next(addr);
+	}
+	
+	printf("Please enter the no. of unit you want to select : ");
+	scanf("%d", &N);
+
+	addr = First(PListUnit(P));
+	i = 1;
+	while (i < N) {
+		addr = Next(addr);
+		i++;
+	}
+
+	printf("You are now selecting ");
+	if(Unit(addr).Type == 'K'){
+		printf("King.\n");
+	} else if(Unit(addr).Type == 'A') {
+		printf("Archer.\n");
+	} else if(Unit(addr).Type == 'S') {
+		printf("Swordsman.\n");
+	} else if(Unit(addr).Type == 'W') {
+		printf("White Mage.\n");
+	}
+	printf("\n");
+	*U = Unit(addr);
+}
+
+void Command_ControlUnit(MATRIKS *M, UNIT *U)
+{
+	int X = PLocationX(U);
+	int Y = PLocationY(U);
+	int Owner = POwner(U);
 
 	PElmt(M,X,Y).Unit.Owner = Controlled;
-	Unit(First(*L)).Owner = Controlled;
+	
+	POwner(U) = Controlled;
+	
+	Map_ShowMovement(M, PElmt(M,X,Y).Unit, Owner);
 }
 
-void Command_Input(MATRIKS *M, PLAYER *P, boolean *finalstate)
+void Command_EndTurn(MATRIKS *M, PLAYER *P, UNIT *U)
 {
+	Map_RemoveMovement(M,U);
+	Command_ReleaseUnit(M,P,U);
+	printf("\n");
+}
+
+void Command_Input(MATRIKS *M, PLAYER *P, TERRAIN *T, boolean *finalstate)
+{
+	ListT_CheckandDelete(&PListVillage(P), *T);
+	Player_IncreaseMoney(P);
+	Player_DecreaseMoney(P);
+
+	Stack S;
 	char command[50];
+	int clrscr;
+	UNIT U = Unit(First(PListUnit(P)));
 
 	for(;;){
-		Command_ControlUnit(M, &PListUnit(P));
-		Player_PrintTurn(*P);
+		printf("-------------------------------------\n\n");
+		Command_ControlUnit(M, &U);;
+		Player_PrintTurn(*P, U);
 		printf("Your Input : ");
 		scanf("%s", &command);
 
-		if(strcmp("RECRUIT",command) == 0) {
-			Command_Recruit(M, P);
+		if(strcmp("MOVE",command) == 0) {
+			Command_Move(M,P,&U,&S,T);
+		} else if(strcmp("RECRUIT",command) == 0) {
+			Command_Recruit(M, P, U);
 		} else if(strcmp("INFO", command) == 0) {
 			Command_Info(*M);
 		} else if(strcmp("MAP", command) == 0) {
 			Map_Print(*M);
 		} else if(strcmp("CHANGE_UNIT", command) == 0) {
-			Command_ChangeUnit(M, P);
+			Command_ChangeUnit(M, P, &U);
 		} else if(strcmp("END_TURN", command) == 0) {
-			printf("\n");
+			Command_EndTurn(M, P, &U);
+			Map_ClearScreen();
 			break;
 		} else if(strcmp("EXIT", command) == 0) {
 			exit(0);
 		}
+
+		printf("Clear the screen?(1/0) : "); scanf("%d", &clrscr);
+		if(clrscr == 1){
+			Map_ClearScreen();
+		}
 	}
 }
-
-	/*
-	if(command == "MOVE") {
-		Command_Move();
-	} else if(command == "UNDO") {
-		Command_Undo();
-	} else if(command == "ATTACK") {
-		Command_Attack();
-	*/

@@ -44,12 +44,18 @@ PLAYER Player_Init(int Order);
 /* Membuat player untuk game */
 /* Order menunjukkan urutan pemain */
 
-void Player_PrintTurn(PLAYER P);
+void Player_PrintTurn(PLAYER P, UNIT U);
 /* Menampilkan informasi mengenai Player saat turn Player yang bersangkutan */
 
 boolean Player_Lose(PLAYER P);
 /* Menghasilkan true jika player P sudah kalah */
 /* Kalah = Raja milik Player mati */
 /* Digunakan untuk menghapus elemen player dari queue */
+
+void Player_IncreaseMoney(PLAYER *P);
+/* Menambah uang player sesuai jumlah village yang diakuisisi */
+
+void Player_DecreaseMoney(PLAYER *P);
+/* Mengurangi uang player sesuai jumlah unit yang dimiliki */
 
 #endif
