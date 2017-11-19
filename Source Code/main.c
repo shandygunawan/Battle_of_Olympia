@@ -38,7 +38,7 @@ void Main_InitState(MATRIKS *M, Queue *Q)
             
             /* Buat king */
             M->Mem[(M->NKolEff-2)][1].Unit = Unit_Init('K', location, i);
-            M->Mem[(M->NKolEff-2)][1].Unit.Owner = Controlled;
+            M->Mem[(M->NKolEff-2)][1].Unit.Controlled = true;
             ListU_InsULast(&P.Unit, M->Mem[(M->NKolEff-2)][1].Unit);
         }
 

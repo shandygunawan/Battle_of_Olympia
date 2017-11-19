@@ -5,28 +5,59 @@
 
 void Command_Move(MATRIKS *M, PLAYER *P, UNIT *U, Stack *S, TERRAIN *T)
 {
-	POINT Po;
-	Po.X = PLocationX(U); Po.Y = PLocationY(U);
-	int baris,kolom;
+	addressU addrU;
+	int AmountMove; /* menyimpan besar pergerakan unit */
+	POINT Po; Po.X = PLocationX(U); Po.Y = PLocationY(U); /* Menyimpan posisi awal unit */
+	int baris,kolom; /* Menyimpan posisi target unit */
+
+	/* input posisi target */
 	printf("Please enter cell's coordinate x y : ");
 	scanf("%d %d", &kolom, &baris);
 
-	if(PElmt(M,baris,kolom).Unit.Type != '#') {
+	/* cek apakah target termasuk daerah movement */
+	if(PElmt(M,baris,kolom).Unit.Type != '#') { /* target tidak termasuk daerah movement */
 		printf("You can't move there.\n");
-	} else {
-		Map_RemoveMovement(M, U);
-		PElmt(M,Po.X,Po.Y).Unit = Unit_CreateEmpty(Po);
-		PLocationX(U) = baris;
+	
+	} else { /* target termasuk daerah movement */
+		addrU = ListU_SearchUnit(PListUnit(P), *U);
+		Map_RemoveMovement(M, U); /* Menghapus movement di posisi awal unit */
+
+		PElmt(M,Po.X,Po.Y).Unit = Unit_CreateEmpty(Po); /* Unit di posisi awal unit menjadi unit kosong */
+		
+		/* Menghitung besar pergerakan pemain */		
+		if(kolom > Po.Y) {
+			AmountMove = kolom - Po.Y;
+		} else if(Po.Y > kolom) {
+			AmountMove = Po.Y - kolom;
+		} else if(baris > Po.X) {
+			AmountMove = baris - Po.X;
+		} else if(Po.X > baris) {
+			AmountMove = Po.X - baris;
+		}
+		
+		/* Posisi unit baru ada di target */
+		Command_UpdateUnitPosition(P, U, baris, kolom);
+		PLocationX(U) = baris; 
 		PLocationY(U) = kolom;
 		PElmt(M,baris,kolom).Unit = *U;
+		
+		/* Mengurangi jumlah movement unit setelah bergerak */
+		PElmt(M,baris,kolom).Unit.Movement -= AmountMove;
+		PMovement(U) -= AmountMove;
+		Movement(Unit(addrU)) -= AmountMove;
+
 		printf("You have successfully moved to (%d,%d)\n", kolom, baris);
 
+		/* jika unit menduduki villlage, village diakuisisi dan movement unit -> 0 */
 		if(PElmt(M,baris,kolom).Terrain.Type == 'V') {
-			PElmt(M,baris,kolom).Terrain.Owner = PNumber(P);
-			ListT_InsVLast(&PListVillage(P), PElmt(M,baris,kolom).Terrain);
+			PElmt(M,baris,kolom).Terrain.Owner = PNumber(P); /* mengubah ownership village */
+			ListT_InsVLast(&PListVillage(P), PElmt(M,baris,kolom).Terrain); /* Insert village ke list village pemain */
 			printf("You also have successfully acquire the village.\n");
-			*T = PElmt(M,baris,kolom).Terrain;
-			PIncome(P) = PIncome(P)+5;
+			
+			*T = PElmt(M,baris,kolom).Terrain; /* digunakan untuk pemain berikutnya agar T dihapus dari list village pemain tersebut */
+			PIncome(P) = PIncome(P)+5; /* menambah income pemain */
+			PElmt(M,baris,kolom).Unit.Movement = 0; /* Mengubah movement unit matriks -> 0 */
+			PMovement(U) = 0; /* Mengubah movement unit list -> 0 */
 		}
 
 	}
@@ -87,6 +118,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
 				printf("You have recruited an archer!\n");
 				PElmt(M,baris,kolom).Unit = Unit_Init('A',Po, PNumber(P));
 				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
+				PElmt(M,baris,kolom).Unit.Movement = 0;
 				PGold(P) = PGold(P)-5;
 				PUpkeep(P) = PUpkeep(P)+1;
 				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
@@ -95,6 +127,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
 				printf("You have recruited a Swordsman!\n");
 				PElmt(M,baris,kolom).Unit = Unit_Init('S',Po, PNumber(P));
 				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
+				PElmt(M,baris,kolom).Unit.Movement = 0;
 				PGold(P) = PGold(P)-5;
 				PUpkeep(P) = PUpkeep(P)+1;
 				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
@@ -104,6 +137,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
 				printf("Seems that you are a big spender heh?\n");
 				PElmt(M,baris,kolom).Unit = Unit_Init('W',Po,PNumber(P));
 				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
+				PElmt(M,baris,kolom).Unit.Movement = 0;
 				PGold(P) = PGold(P)-10;
 				PUpkeep(P) = PUpkeep(P)+1;
 				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
@@ -179,8 +213,8 @@ void Command_ReleaseUnit(MATRIKS *M, PLAYER *P, UNIT *U)
 	int X = PLocationX(U);
 	int Y = PLocationY(U);
 
-	PElmt(M,X,Y).Unit.Owner = PNumber(P);
-	POwner(U) = PNumber(P);
+	PElmt(M,X,Y).Unit.Controlled = false;
+	PControlled(U) = false;
 	Map_RemoveMovement(M, U);
 }
 
@@ -226,14 +260,41 @@ void Command_ControlUnit(MATRIKS *M, UNIT *U)
 {
 	int X = PLocationX(U);
 	int Y = PLocationY(U);
-	int Owner = POwner(U);
 
-	PElmt(M,X,Y).Unit.Owner = Controlled;
+	PElmt(M,X,Y).Unit.Controlled = true;
+	PControlled(U) = true;
 	
-	POwner(U) = Controlled;
-	
-	Map_ShowMovement(M, PElmt(M,X,Y).Unit, Owner);
+	Map_ShowMovement(M, PElmt(M,X,Y).Unit, POwner(U));
 }
+
+void Command_ReplenishUnitMovement(MATRIKS *M, PLAYER *P)
+{
+	Player_ReplenishMovement(P);
+	int X,Y;
+	addressU addr = First(PListUnit(P));
+
+	while(addr != Nil){
+		X = LocationX(Unit(addr));
+		Y = LocationY(Unit(addr));
+
+		PElmt(M,X,Y).Unit.Movement = Movement(Unit(addr));
+
+		addr = Next(addr);
+	}
+}
+
+void Command_UpdateUnitPosition(PLAYER *P, UNIT *U, int X, int Y)
+{
+    addressU addr = ListU_SearchUnit(PListUnit(P),*U);
+
+    if(addr == Nil){
+        printf("addr nil\n");
+    } else {
+        LocationX(Unit(addr)) = X;
+        LocationY(Unit(addr)) = Y;
+    }
+}
+
 
 void Command_EndTurn(MATRIKS *M, PLAYER *P, UNIT *U)
 {
@@ -247,6 +308,7 @@ void Command_Input(MATRIKS *M, PLAYER *P, TERRAIN *T, boolean *finalstate)
 	ListT_CheckandDelete(&PListVillage(P), *T);
 	Player_IncreaseMoney(P);
 	Player_DecreaseMoney(P);
+	Command_ReplenishUnitMovement(M,P);
 
 	Stack S;
 	char command[50];
@@ -255,7 +317,7 @@ void Command_Input(MATRIKS *M, PLAYER *P, TERRAIN *T, boolean *finalstate)
 
 	for(;;){
 		printf("-------------------------------------\n\n");
-		Command_ControlUnit(M, &U);;
+		Command_ControlUnit(M, &U);
 		Player_PrintTurn(*P, U);
 		printf("Your Input : ");
 		scanf("%s", &command);

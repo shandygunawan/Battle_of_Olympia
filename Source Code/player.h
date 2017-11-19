@@ -58,4 +58,7 @@ void Player_IncreaseMoney(PLAYER *P);
 void Player_DecreaseMoney(PLAYER *P);
 /* Mengurangi uang player sesuai jumlah unit yang dimiliki */
 
+void Player_ReplenishMovement(PLAYER *P);
+/* Mengembalikan nilai movement unit ke nilai awal */
+
 #endif

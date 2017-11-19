@@ -126,4 +126,5 @@ void Player_PrintUnit(UNIT U);
 int ListU_NBElmt(ListU L);
 /* Menghasilkan jumlah elemen list */
 
+
 #endif

@@ -129,15 +129,17 @@ void Map_Print(MATRIKS M)
                 }
                 else if (cR==2&&cC==2)
                 {
-                  if(Elmt(M,idxRow,idxCol).Unit.Owner == 1){
-                      print_red(Elmt(M,idxRow,idxCol).Unit.Type);
-                  } else if(Elmt(M,idxRow,idxCol).Unit.Owner == 2){
-                      print_blue(Elmt(M,idxRow,idxCol).Unit.Type);
-                  } else if(Elmt(M,idxRow,idxCol).Unit.Owner == Controlled){
+                  if(Elmt(M,idxRow,idxCol).Unit.Controlled == true){
                       print_green(Elmt(M,idxRow,idxCol).Unit.Type);
-                  }
-                  else {
-                      printf("%c",Elmt(M,idxRow,idxCol).Unit.Type);
+                  } else {
+                    if(Elmt(M,idxRow,idxCol).Unit.Owner == 1) {
+                        print_red(Elmt(M,idxRow,idxCol).Unit.Type);
+                    } else if(Elmt(M,idxRow,idxCol).Unit.Owner == 2){
+                        print_blue(Elmt(M,idxRow,idxCol).Unit.Type);
+                    }
+                    else {
+                        printf("%c",Elmt(M,idxRow,idxCol).Unit.Type);
+                    }
                   }
                 }
                 else {

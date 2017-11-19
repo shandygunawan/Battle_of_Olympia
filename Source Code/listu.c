@@ -87,9 +87,10 @@ addressU ListU_SearchUnit (ListU L, UNIT U)
 							if( (Unit(P).Attack_Type == U.Attack_Type) && (Unit(P).Attack_Chance == U.Attack_Chance) ) {
 								found_add = P;
 								found = true;
-							}
-						}
-					}
+							} 
+                           
+                        }
+					} 
                 }
             }
             else {

@@ -19,6 +19,7 @@ typedef struct {
 	int Attack_Type;
 	int Price;
 	boolean Attack_Chance;
+	boolean Controlled;
 } UNIT;
 
 /* Macro Unit */
@@ -33,6 +34,7 @@ typedef struct {
 #define AttackType(U) (U).Attack_Type
 #define Price(U) (U).Price
 #define AttackChance(U) (U).Attack_Chance
+#define Controlled(U) (U).Controlled
 
 #define PLocationX(U) (U)->Location.X
 #define PLocationY(U) (U)->Location.Y
@@ -45,6 +47,7 @@ typedef struct {
 #define PAttackType(U) (U)->Attack_Type
 #define PPrice(U) (U)->Price
 #define PAttackChance(U) (U)->Attack_Chance
+#define PControlled(U) (U)->Controlled
 
 /***************************** Fungsi & Prosedur ********************/
 UNIT Unit_CreateEmpty(POINT P);

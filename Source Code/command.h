@@ -25,6 +25,10 @@ void Command_ChangeUnit(MATRIKS *M, PLAYER *P, UNIT *U);
 
 void Command_ControlUnit(MATRIKS *M, UNIT *U);
 
+void Command_ReplenishUnitMovement(MATRIKS *M, PLAYER *P);
+
+void Command_UpdateUnitPosition(PLAYER *P, UNIT *U, int X, int Y);
+
 void Command_EndTurn(MATRIKS *M, PLAYER *P, UNIT *U);
 
 void Command_Input(MATRIKS *M, PLAYER *P, TERRAIN *T, boolean *finalstate);

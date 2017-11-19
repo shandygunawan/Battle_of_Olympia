@@ -105,5 +105,4 @@ void ListT_CheckandDelete(ListT *L, TERRAIN X);
 
 int ListT_NBElmt(ListT L);
 /* Menghasilkan jumlah elemen list */
-
 #endif

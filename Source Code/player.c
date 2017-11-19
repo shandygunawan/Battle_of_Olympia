@@ -50,3 +50,24 @@ void Player_DecreaseMoney(PLAYER *P)
 {
     PGold(P) = PGold(P)-PUpkeep(P);
 }
+
+void Player_ReplenishMovement(PLAYER *P)
+/* Mengembalikan nilai movement unit ke nilai awal */
+{
+  addressU addr = First(PListUnit(P));
+  UNIT U;
+
+  while(addr != Nil) {
+    if(Unit(addr).Type == 'K') {
+      Unit(addr).Movement = 1;
+    } else if(Unit(addr).Type == 'A') {
+      Unit(addr).Movement = 2;
+    } else if(Unit(addr).Type == 'S') {
+      Unit(addr).Movement = 4;
+    } else if(Unit(addr).Type == 'W') {
+      Unit(addr).Movement = 2;
+    }
+
+    addr = Next(addr);
+  }
+}

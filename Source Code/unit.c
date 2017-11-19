@@ -16,6 +16,7 @@ UNIT Unit_CreateEmpty(POINT P)
 	U.Attack_Type = Melee;
 	U.Price = 0;
 	boolean Attack_Chance = false;
+	boolean Controlled = false;
     return U;
 }
 
@@ -37,6 +38,7 @@ UNIT Unit_Init(char type, POINT P, int owner)
 		U.Attack_Type = Ranged;
 		U.Price = 5;
 		boolean Attack_Chance = false;
+		boolean Controlled = false;
 	}
 	else if(type == 'S') { /*type unit = Swordsman */
 		U.Location.X = P.X;
@@ -50,6 +52,7 @@ UNIT Unit_Init(char type, POINT P, int owner)
 		U.Attack_Type = Melee;
 		U.Price = 4;
 		boolean Attack_Chance = false;
+		boolean Controlled = false;
 	}
 	else if(type == 'W') { /* type unit = WhiteMage */
 		U.Location.X = P.X;
@@ -63,6 +66,7 @@ UNIT Unit_Init(char type, POINT P, int owner)
 		U.Attack_Type = Ranged;
 		U.Price = 10;
 		boolean Attack_Chance = false;
+		boolean Controlled = false;
 	}
 	else if(type == 'K') { /* type unit = King */
 		U.Location.X = P.X;
@@ -76,6 +80,7 @@ UNIT Unit_Init(char type, POINT P, int owner)
 		U.Attack_Type = Melee;
 		U.Price = 0;
 		boolean Attack_Chance = false;
+		boolean Controlled = false;
 	}
 
 	return U;
