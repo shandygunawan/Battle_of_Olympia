@@ -94,4 +94,6 @@ void Map_ShowMovement(MATRIKS *M, UNIT U, int Owner);
 void Map_RemoveMovement(MATRIKS *M, UNIT *U);
 /* Menghapus # dari pergerakan unit */
 
+void Map_PrintVillage(TERRAIN T);
+
 #endif

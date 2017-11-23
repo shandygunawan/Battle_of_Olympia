@@ -389,3 +389,10 @@ void Map_RemoveMovement(MATRIKS *M, UNIT *U)
     }
   }
 }
+
+void Map_PrintVillage(TERRAIN T)
+{
+  printf("-- Village --\n");
+  printf("Owner : %d\n", T.Owner);
+  printf("Type  : %d\n", T.Type);
+}

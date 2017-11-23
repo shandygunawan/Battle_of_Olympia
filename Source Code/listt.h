@@ -100,8 +100,8 @@ void ListT_DelVLast (ListT *L, TERRAIN * X);
 /* F.S. Elemen terakhir ListT dihapus: nilai info disimpan pada X */
 /*      dan alamat elemen terakhir di-dealokasi */
 
-void ListT_CheckandDelete(ListT *L, TERRAIN X);
-/* Mencari terrain X di ListT L dan menghapusnya jika ada */
+void ListT_CheckandDelete(ListT *L, ListT *Ldel);
+/* Mencari Terrain di ListT L yang merupakan anggota dari Ldel */
 
 int ListT_NBElmt(ListT L);
 /* Menghasilkan jumlah elemen list */

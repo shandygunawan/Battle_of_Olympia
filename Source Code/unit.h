@@ -55,20 +55,13 @@ UNIT Unit_CreateEmpty(POINT P);
 
 UNIT Unit_Init(char type, POINT P, int owner);
 /* Mengirimkan stat awal untuk unit yang diinginkan berdasarkan parameter type */
-/* Unit : King(K), Swordsman(S), Archer(A), WhiteMage(W) */
-
-
-void Unit_Battle(UNIT *U1, UNIT *U2);
-/* Melakukan serangan antara Unit 1 dan Unit 2 */
-/* U1 menyerang U2 */
-/* Rumus serangan : U2.Health = U2.Health - U1.Attack */
-/* Setelah U1 menyerang : */
-/* Movement U1 -> 0 */
-/* Attack chance U1 -> false */
-/* Kalau tipe serangan sama, U2 akan melakukan counter */ 
+/* Unit : King(K), Swordsman(S), Archer(A), WhiteMage(W) */ 
 
 void Unit_Heal(UNIT *U);
 /* Meningkatkan Health untuk unit-unit yang berada adjacent dengan White Mage */
 /* Unit W = White Mage, U = Unit yang akan di-heal */ 
+
+void Unit_PrintType(char type);
+/* Print unit dalam string berdasarkan type */
 
 #endif

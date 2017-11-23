@@ -163,19 +163,21 @@ void ListT_DelP (ListT *L, TERRAIN X)
 /* Jika tidak ada elemen ListT dengan P->info=X, maka ListT tetap */
 /* ListT mungkin menjadi kosong karena penghapusan */
 {
-  addressT P = L->First;
+  addressT P = First(*L);
   addressT Pdel;
   boolean found = false;
 
-  if( (X.Location.X == P->terrain.Location.X) && (X.Location.Y == P->terrain.Location.Y) && (X.Owner == P->terrain.Owner) && (X.Type == P->terrain.Type) ){
-    ListT_DelFirst(&*L,&P);
-    ListT_Dealokasi(P);
-  } else {
-    while( (P->next!=L->First) && (found == false)){
-      if((X.Location.X == (P->next)->terrain.Location.X) && (X.Location.Y == (P->next)->terrain.Location.Y) && (X.Owner == (P->next)->terrain.Owner) && (X.Type == (P->next)->terrain.Type) ) {
-        found = true;
-      } else {
-        P = Next(P);
+  if(!ListT_IsEmpty(*L)){
+    if( (X.Location.X == P->terrain.Location.X) && (X.Location.Y == P->terrain.Location.Y) && (X.Owner == P->terrain.Owner) && (X.Type == P->terrain.Type) ){
+      ListT_DelFirst(&*L,&P);
+      ListT_Dealokasi(P);
+    } else {
+      while( (Next(P)!=First(*L)) && (found == false)){
+        if( (X.Location.X == Terrain(Next(P)).Location.X) && (X.Location.Y == Terrain(Next(P)).Location.Y) && (X.Owner == Terrain(Next(P)).Owner) && (X.Type == Terrain(Next(P)).Type) ) {
+          found = true;
+        } else {
+          P = Next(P);
+        }
       }
     }
   }
@@ -235,13 +237,16 @@ void ListT_DelVLast (ListT *L, TERRAIN * X)
   ListT_Dealokasi(del);
 }
 
-void ListT_CheckandDelete(ListT *L, TERRAIN X)
-/* Mencari terrain X di ListT L dan menghapusnya jika ada */
+void ListT_CheckandDelete(ListT *L, ListT *Ldel)
+/* Mencari Terrain di ListT L yang merupakan anggota dari Ldel */
 {
-  addressT check = ListT_SearchVillage(*L, X);
+  TERRAIN T;
 
-  if(check != Nil) {
-    ListT_DelP(L, X);
+  if(!ListT_IsEmpty(*L) && !ListT_IsEmpty(*Ldel)) {
+    while(!ListT_IsEmpty(*Ldel)) {
+      ListT_DelVFirst(Ldel, &T);
+      ListT_DelP(L, T);
+    }
   }
 }
 
@@ -251,9 +256,12 @@ int ListT_NBElmt(ListT L)
   addressT P = First(L);
   int count = 0;
 
-  while(P != Nil) {
+  if(!ListT_IsEmpty(L)) {
+    while(Next(P) != First(L)) {
+      count++;
+      P = Next(P);
+    }
     count++;
-    P = Next(P);
   }
   return count;
 }

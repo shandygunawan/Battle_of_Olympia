@@ -123,8 +123,12 @@ void ListU_DelULast (ListU *L, UNIT *U);
 void Player_PrintUnit(UNIT U);
 /* Menampilkan Unit yang dimiliki Player */
 
+void ListU_PrintEnemy(UNIT U, UNIT E);
+
 int ListU_NBElmt(ListU L);
 /* Menghasilkan jumlah elemen list */
 
+void ListU_CheckandDelete(ListU *L, ListU *Ldel);
+/* Mencari Unit di ListU L yang merupakan anggota dari Ldel */
 
 #endif

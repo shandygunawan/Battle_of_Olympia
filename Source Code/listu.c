@@ -82,8 +82,8 @@ addressU ListU_SearchUnit (ListU L, UNIT U)
         do{
             if( (Unit(P).Location.X == U.Location.X) && (Unit(P).Location.Y == U.Location.Y) ) {
                 if( (Unit(P).Type == U.Type) && (Unit(P).Owner == U.Owner) ) {
-                	if( (Unit(P).Max_Health == U.Max_Health) && (Unit(P).Health == U.Health) ) {
-						if( (Unit(P).Attack == U.Attack) && (Unit(P).Movement == U.Movement) ) {
+                	if( (Unit(P).Max_Health == U.Max_Health) ) {
+						if( (Unit(P).Attack == U.Attack) ) {
 							if( (Unit(P).Attack_Type == U.Attack_Type) && (Unit(P).Attack_Chance == U.Attack_Chance) ) {
 								found_add = P;
 								found = true;
@@ -335,15 +335,50 @@ void Player_PrintUnit(UNIT U)
   }
 }
 
+void ListU_PrintEnemy(UNIT U, UNIT E)
+/* Menampilkan musuh yang bisa diserang player */
+{
+  if(Type(E) == 'K'){
+    printf("King");
+  } else if (Type(E) == 'A') {
+    printf("Archer");
+  } else if (Type(E) == 'S') {
+    printf("Swordsman");
+  } else if (Type(E) == 'W') {
+    printf("White Mage");
+  }
+  printf(" | ");
+  printf("Health : %d/%d", Health(E), MaxHealth(E));
+
+  if( (AttackType(U) == AttackType(E)) || (Type(E) == 'K') ) {
+    printf(" (retaliates)\n");
+  } else {
+    printf("\n");
+  }
+}
+
 int ListU_NBElmt(ListU L)
 /* Menghasilkan jumlah elemen list */
 {
   addressU P = First(L);
   int count = 0;
-
-  while(P != Nil) {
-    count++;
-    P = Next(P);
-  }
+  if(ListU_IsEmpty(L)) {
+      while(P != Nil) {
+        count++;
+        P = Next(P);
+      }
+    }
   return count;
+}
+
+void ListU_CheckandDelete(ListU *L, ListU *Ldel)
+/* Mencari Unit di ListU L yang merupakan anggota dari Ldel */
+{
+  UNIT U;
+  if(!ListU_IsEmpty(*L) && !ListU_IsEmpty(*Ldel)) {
+      while(ListU_IsEmpty(*Ldel)) {
+        ListU_DelUFirst(Ldel, &U);
+        ListU_DelP(L, U);
+      }
+  }
 }

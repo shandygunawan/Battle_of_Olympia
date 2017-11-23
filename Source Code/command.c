@@ -3,12 +3,13 @@
 #include <string.h>
 #include "command.h"
 
-void Command_Move(MATRIKS *M, PLAYER *P, UNIT *U, Stack *S, TERRAIN *T)
+void Command_Move(MATRIKS *M, PLAYER P[], int idx, UNIT *U, Stack *S)
 {
 	addressU addrU;
 	int AmountMove; /* menyimpan besar pergerakan unit */
 	POINT Po; Po.X = PLocationX(U); Po.Y = PLocationY(U); /* Menyimpan posisi awal unit */
 	int baris,kolom; /* Menyimpan posisi target unit */
+	int IdxOpp = Player_IdxOpp(idx); /* IdxOpp = idx musuh */
 
 	/* input posisi target */
 	printf("Please enter cell's coordinate x y : ");
@@ -19,7 +20,9 @@ void Command_Move(MATRIKS *M, PLAYER *P, UNIT *U, Stack *S, TERRAIN *T)
 		printf("You can't move there.\n");
 	
 	} else { /* target termasuk daerah movement */
-		addrU = ListU_SearchUnit(PListUnit(P), *U);
+
+		addrU = ListU_SearchUnit(ListUnit(P[idx]), *U);
+		
 		Map_RemoveMovement(M, U); /* Menghapus movement di posisi awal unit */
 
 		PElmt(M,Po.X,Po.Y).Unit = Unit_CreateEmpty(Po); /* Unit di posisi awal unit menjadi unit kosong */
@@ -36,35 +39,49 @@ void Command_Move(MATRIKS *M, PLAYER *P, UNIT *U, Stack *S, TERRAIN *T)
 		}
 		
 		/* Posisi unit baru ada di target */
-		Command_UpdateUnitPosition(P, U, baris, kolom);
+		Command_UpdateUnitPosition(&P[idx], U, baris, kolom); /* ganti posisi di list */
 		PLocationX(U) = baris; 
 		PLocationY(U) = kolom;
 		PElmt(M,baris,kolom).Unit = *U;
 		
 		/* Mengurangi jumlah movement unit setelah bergerak */
-		PElmt(M,baris,kolom).Unit.Movement -= AmountMove;
-		PMovement(U) -= AmountMove;
-		Movement(Unit(addrU)) -= AmountMove;
+		PElmt(M,baris,kolom).Unit.Movement -= AmountMove; /* Hapus di matriks */
+		PMovement(U) -= AmountMove; /* Hapus di unit */
+		Movement(Unit(addrU)) -= AmountMove; /* Hapus di array player */
+
+		/* Jika movement = 0, maka unit tidak bisa menyerang */
+		if(PMovement(U) == 0){
+			PElmt(M,baris,kolom).Unit.Attack_Chance = false;
+			PAttackChance(U) = false;
+			AttackChance(Unit(addrU)) = false;	
+		}
 
 		printf("You have successfully moved to (%d,%d)\n", kolom, baris);
 
-		/* jika unit menduduki villlage, village diakuisisi dan movement unit -> 0 */
-		if(PElmt(M,baris,kolom).Terrain.Type == 'V') {
-			PElmt(M,baris,kolom).Terrain.Owner = PNumber(P); /* mengubah ownership village */
-			ListT_InsVLast(&PListVillage(P), PElmt(M,baris,kolom).Terrain); /* Insert village ke list village pemain */
-			printf("You also have successfully acquire the village.\n");
+		/* jika unit menduduki village, village diakuisisi dan movement unit -> 0 */
+		if(PElmt(M,baris,kolom).Terrain.Type == 'V' && PElmt(M,baris,kolom).Terrain.Owner != idx) {
 			
-			*T = PElmt(M,baris,kolom).Terrain; /* digunakan untuk pemain berikutnya agar T dihapus dari list village pemain tersebut */
-			PIncome(P) = PIncome(P)+5; /* menambah income pemain */
+			/* Perubahan properties matriks */
+			
+			/* Insertion dan Deletion List */
+			PElmt(M,baris,kolom).Terrain.Owner = idx; /* mengubah ownership village */
+			ListT_InsVFirst(&ListVillage(P[idx]), PElmt(M,baris,kolom).Terrain); /* Insert village ke list village pemain */
+			ListT_DelP(&ListVillage(P[IdxOpp]), PElmt(M,baris,kolom).Terrain); /* Menghapus village musuh dari list */
+			
+			/* Perubahan properties player */
 			PElmt(M,baris,kolom).Unit.Movement = 0; /* Mengubah movement unit matriks -> 0 */
+			
+			/* Perubahan properties unit */
 			PMovement(U) = 0; /* Mengubah movement unit list -> 0 */
+		
+			printf("You also have successfully acquire the village.\n");
 		}
 
 	}
 	printf("\n");
 }
 
-void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
+void Command_Recruit(MATRIKS *M, PLAYER P[], int idx, UNIT U)
 {
 	int baris,kolom;
 	POINT Po;
@@ -73,7 +90,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
 	boolean KinginTower = true;
 
 	if(Type(U) == 'K'){
-		if (LocationX(U) != PTower(P).X || LocationY(U) != PTower(P).Y) {
+		if (LocationX(U) != Tower(P[idx]).X || LocationY(U) != Tower(P[idx]).Y) {
 			printf("You can't recruit. Your king is not in the Tower.\n");
 			KinginTower = false;
 		} else {
@@ -84,7 +101,7 @@ void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
 				if(PElmt(M,baris,kolom).Terrain.Type != 'C') { /* Koordinat Input bukan castle */
 					printf("That is not a castle!\n");
 				} else { /* Koordinat input adalah castle */
-					if(PElmt(M,baris,kolom).Terrain.Owner != PNumber(P)){ /* Castle punya pemain lain */
+					if(PElmt(M,baris,kolom).Terrain.Owner != Number(P[idx])){ /* Castle punya pemain lain */
 						printf("That is not your castle!\n");
 					} else { /* Castle punya pemain */
 						if( (PElmt(M,baris,kolom).Unit.Type == 'A') || (PElmt(M,baris,kolom).Unit.Type == 'W') || (PElmt(M,baris,kolom).Unit.Type == 'S') ) { /* ada unit di castle */
@@ -105,48 +122,211 @@ void Command_Recruit(MATRIKS *M, PLAYER *P, UNIT U)
 	Po.Y = kolom;
 
 	/* Menampilkan list recruit yang bisa direkrut */
-	
 	if(KinginTower == true){
 		printf("=== List Of Recruits ===\n");
 		printf("1. Archer | Health 20 | ATK 4 | 5G\n");
 		printf("2. Swordsman | Health 20 | ATK 3 | 4G\n");
 		printf("3. White Mage | Health 20 | ATK 2 | 20G\n");
 		
-		if (PGold(P) >= 4){
+		if (Gold(P[idx]) >= 4){
 			printf("Enter No. of unit you want to recruit : "); scanf("%d", &unit);
 			if(unit == 1){
 				printf("You have recruited an archer!\n");
-				PElmt(M,baris,kolom).Unit = Unit_Init('A',Po, PNumber(P));
-				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
+				PElmt(M,baris,kolom).Unit = Unit_Init('A',Po, Number(P[idx]));
+				PElmt(M,baris,kolom).Unit.Owner = Number(P[idx]);
 				PElmt(M,baris,kolom).Unit.Movement = 0;
-				PGold(P) = PGold(P)-5;
-				PUpkeep(P) = PUpkeep(P)+1;
-				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
+				Gold(P[idx]) = Gold(P[idx])-PElmt(M,baris,kolom).Unit.Price;
+				Upkeep(P[idx]) = Upkeep(P[idx])+1;
+				ListU_InsULast(&ListUnit(P[idx]), PElmt(M,baris,kolom).Unit);
 
 			} else if(unit == 2){
 				printf("You have recruited a Swordsman!\n");
-				PElmt(M,baris,kolom).Unit = Unit_Init('S',Po, PNumber(P));
-				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
+				PElmt(M,baris,kolom).Unit = Unit_Init('S',Po, Number(P[idx]));
+				PElmt(M,baris,kolom).Unit.Owner = Number(P[idx]);
 				PElmt(M,baris,kolom).Unit.Movement = 0;
-				PGold(P) = PGold(P)-5;
-				PUpkeep(P) = PUpkeep(P)+1;
-				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
+				Gold(P[idx]) = Gold(P[idx])-PElmt(M,baris,kolom).Unit.Price;
+				Upkeep(P[idx]) = Upkeep(P[idx])+1;
+				ListU_InsULast(&ListUnit(P[idx]), PElmt(M,baris,kolom).Unit);
 			
 			} else if(unit == 3){
 				printf("You have recruited a White Mage!\n");
 				printf("Seems that you are a big spender heh?\n");
-				PElmt(M,baris,kolom).Unit = Unit_Init('W',Po,PNumber(P));
-				PElmt(M,baris,kolom).Unit.Owner = PNumber(P);
+				PElmt(M,baris,kolom).Unit = Unit_Init('W',Po,Number(P[idx]));
+				PElmt(M,baris,kolom).Unit.Owner = Number(P[idx]);
 				PElmt(M,baris,kolom).Unit.Movement = 0;
-				PGold(P) = PGold(P)-10;
-				PUpkeep(P) = PUpkeep(P)+1;
-				ListU_InsULast(&P->Unit, PElmt(M,baris,kolom).Unit);
+				Gold(P[idx]) = Gold(P[idx])-PElmt(M,baris,kolom).Unit.Price;
+				Upkeep(P[idx]) = Upkeep(P[idx])+1;
+				ListU_InsULast(&ListUnit(P[idx]), PElmt(M,baris,kolom).Unit);
 			}
 		} else {
 			printf("Your Gold is not enough to recruit any new member.\n");
 		}
 	}
 	printf("\n");
+}
+
+void Command_Attack(MATRIKS *M, PLAYER P[], int idx, UNIT *U, boolean *finalstate)
+{
+	int X = PLocationX(U);
+	int Y = PLocationY(U);
+	int count = 0;
+	ListU enemy; ListU_CreateEmpty(&enemy); /* menampung enemy yang adjacent */
+
+	/* Cek musuh di adjacent, dan kalau ada, dimasukkan ke list */
+	/* cek atas */
+	if(PElmt(M,X,Y-1).Unit.Owner != 0 && PElmt(M,X,Y-1).Unit.Owner != Number(P[idx])) {
+		count += 1; ListU_InsULast(&enemy, PElmt(M,X,Y-1).Unit);
+	}
+	/* cek bawah */
+	if(PElmt(M,X,Y+1).Unit.Owner != 0 && PElmt(M,X,Y+1).Unit.Owner != Number(P[idx])) {
+		count += 1; ListU_InsULast(&enemy, PElmt(M,X,Y+1).Unit);
+	}
+	/* cek kiri */
+	if(PElmt(M,X-1,Y).Unit.Owner != 0 && PElmt(M,X-1,Y).Unit.Owner != Number(P[idx])) {
+		count += 1; ListU_InsULast(&enemy, PElmt(M,X-1,Y).Unit);
+	}
+	/* cek kanan */
+	if(PElmt(M,X+1,Y).Unit.Owner != 0 && PElmt(M,X+1,Y).Unit.Owner != Number(P[idx])) {
+		count += 1; ListU_InsULast(&enemy, PElmt(M,X,Y).Unit);
+	}
+
+	if(count == 0) { /* tidak ada musuh yang adjacent */
+		printf("You can't attack. There is no enemy nearby.\n");
+	} else { /* ada musuh yang adjacent */
+		printf("Enemy that you can attack : \n");
+		/* Print enemy adjacent */
+		addressU addrEnemy = First(enemy);
+		int i = 1, InputEnemy;
+		while(addrEnemy != Nil) {
+			printf("%d. ", i);
+			ListU_PrintEnemy(*U, Unit(addrEnemy));
+			i++;
+			addrEnemy = Next(addrEnemy);	
+		}
+
+		printf("Select enemy you want to attack : "); scanf("%d", &InputEnemy);
+		/* pilih enemy yang diattack */
+		addrEnemy = First(enemy);
+		i = 1;
+		while (i < InputEnemy) {
+			addrEnemy = Next(addrEnemy);
+			i++;
+		}
+		/* Melakukan penyerangan */
+		Command_Battle(M,P,idx,U, &Unit(addrEnemy), finalstate);
+	}
+}
+
+void Command_Battle(MATRIKS *M, PLAYER P[], int idx, UNIT *U1, UNIT *U2, boolean *finalstate)
+/* Melakukan serangan antara Unit 1 dan Unit 2 */
+/* U1 menyerang U2 */
+/* Rumus serangan : U2.Health = U2.Health - U1.Attack */
+/* Setelah U1 menyerang : */
+/* Movement U1 -> 0 */
+/* Attack chance U1 -> false */
+/* Kalau tipe serangan sama, U2 akan melakukan counter */ 
+{
+  /* Attack dari U1 */
+  /* cek apakah U1 bisa menyerang */
+	int IdxOpp = Player_IdxOpp(idx);
+
+	addressU addrU1 = ListU_SearchUnit(ListUnit(P[idx]), *U1);
+	addressU addrU2 = ListU_SearchUnit(ListUnit(P[IdxOpp]), *U2); /* salah karena nilai U2 = U1 */
+
+
+  if(PAttackChance(U1) == true) {
+  	
+  	/* simpan tempat untuk operasi matriks */
+  	int X1 = PLocationX(U1);
+  	int X2 = PLocationX(U2);
+  	int Y1 = PLocationY(U1);
+  	int Y2 = PLocationY(U2);
+
+  	POINT Po1,Po2;
+  	Po1.X = X1; Po1.Y = Y1;
+  	Po2.X = X2; Po2.Y = Y2;
+
+  	/* Operasi pengurangan health musuh */
+  	PElmt(M,X2,Y2).Unit.Health -= Attack(Unit(addrU1)); 
+    Health(Unit(addrU2)) -= Attack(Unit(addrU1));
+    Map_RemoveMovement(M,&Unit(addrU1));
+    PMovement(U1) = 0;
+    PElmt(M,X1,Y1).Unit.Movement = 0;
+    PAttackChance(U1) = false;
+
+    printf("Enemy's ");
+    Unit_PrintType(Type(Unit(addrU2)));
+    printf(" is damaged by %d.\n", PAttack(U1));
+
+    /* Counter dari U2 */
+    if(Health(Unit(addrU2)) > 0){ /* U2 masih hidup */
+      if(Type(Unit(addrU2)) != 'K') {  /* U2 adalah king */
+        
+        if(PAttackType(U1) == AttackType(Unit(addrU2))) {
+        /* Tipe attack sama & Health H2 > 0 */
+        /* U1 mendapat counter sebesar attack U2 */
+          printf("Enemy's ");
+          Unit_PrintType(Type(Unit(addrU2)));
+          printf(" retaliates.\n");
+          PHealth(U1) -= Attack(Unit(addrU2));
+          Health(Unit(addrU1)) -= Attack(Unit(addrU2));
+          PElmt(M,X1,Y1).Unit.Health -= PAttack(U1); 
+          printf("Your ");
+          Unit_PrintType(PType(U1));
+          printf(" is damaged by %d.\n", Attack(Unit(addrU2)));  
+        
+          /* U1 mati terkena counter */
+          if(PHealth(U1) <= 0) {
+            char UnitType = PType(U1);
+            ListU_DelP(&ListUnit(P[idx]), *U1);
+            PElmt(M,X1,Y1).Unit = Unit_CreateEmpty(Po1);
+
+            printf("Your ");
+            Unit_PrintType(UnitType);
+            printf(" is dead :(\n");
+            Upkeep(P[idx]) -= 1;
+          }
+        }
+        /* Tipe attack tidak sama tidak ada counter */
+      }
+      else {
+        /* U2 adalah King */
+        /* King selalu bisa counter */
+        PHealth(U1) -= Attack(Unit(addrU2));
+        Health(Unit(addrU1)) -= Attack(Unit(addrU2));
+        PElmt(M,X1,Y1).Unit.Health -= Attack(Unit(addrU2));
+        printf("Enemy's king retaliates.\n");
+        printf("Your ");
+        Unit_PrintType(Type(Unit(addrU1)));
+        printf(" is damaged by %d. \n", Attack(Unit(addrU2)));
+
+        /* U1 mati terkena counter */
+        if(PHealth(U1) <= 0) {
+          char UnitType = PType(U1);
+          ListU_DelP(&ListUnit(P[idx]),*U1);
+          PElmt(M,X1,Y1).Unit = Unit_CreateEmpty(Po1);
+
+          printf("Your ");
+          Unit_PrintType(UnitType);
+          printf(" is dead :(\n");
+          Upkeep(P[idx]) -= 1;
+        }
+      }
+    }
+    else { /* U2 sudah mati */
+      char EnemyType = Type(Unit(addrU2));
+      ListU_DelP(&ListUnit(P[IdxOpp]), Unit(addrU2));
+      PElmt(M,X2,Y2).Unit = Unit_CreateEmpty(Po2);
+
+      printf("Enemy's ");
+      Unit_PrintType(EnemyType);
+      printf(" is dead :)\n");
+      Upkeep(P[IdxOpp]) -= 1;
+    }
+  }
+  else {
+    printf("You can't attack.\n");
+  }
 }
 
 void Command_Info(MATRIKS M)
@@ -218,11 +398,11 @@ void Command_ReleaseUnit(MATRIKS *M, PLAYER *P, UNIT *U)
 	Map_RemoveMovement(M, U);
 }
 
-void Command_ChangeUnit(MATRIKS *M, PLAYER *P, UNIT *U)
+void Command_ChangeUnit(MATRIKS *M, PLAYER P[], int idx, UNIT *U)
 {
 	Command_ReleaseUnit(M, P, U);
 	int N, i=1;
-	addressU addr = First(PListUnit(P));
+	addressU addr = First(ListUnit(P[idx]));
 
 	printf("== List of Unit(s) ==\n");
 	while(addr != Nil) {
@@ -235,7 +415,7 @@ void Command_ChangeUnit(MATRIKS *M, PLAYER *P, UNIT *U)
 	printf("Please enter the no. of unit you want to select : ");
 	scanf("%d", &N);
 
-	addr = First(PListUnit(P));
+	addr = First(ListUnit(P[idx]));
 	i = 1;
 	while (i < N) {
 		addr = Next(addr);
@@ -267,11 +447,11 @@ void Command_ControlUnit(MATRIKS *M, UNIT *U)
 	Map_ShowMovement(M, PElmt(M,X,Y).Unit, POwner(U));
 }
 
-void Command_ReplenishUnitMovement(MATRIKS *M, PLAYER *P)
+void Command_ReplenishUnitMovement(MATRIKS *M, PLAYER *P, int idx)
 {
-	Player_ReplenishMovement(P);
+	Player_ReplenishMovement(P, idx);
 	int X,Y;
-	addressU addr = First(PListUnit(P));
+	addressU addr = First(ListUnit(P[idx]));
 
 	while(addr != Nil){
 		X = LocationX(Unit(addr));
@@ -285,7 +465,7 @@ void Command_ReplenishUnitMovement(MATRIKS *M, PLAYER *P)
 
 void Command_UpdateUnitPosition(PLAYER *P, UNIT *U, int X, int Y)
 {
-    addressU addr = ListU_SearchUnit(PListUnit(P),*U);
+    addressU addr = ListU_SearchUnit(PListUnit(P),*U); /* search unit */
 
     if(addr == Nil){
         printf("addr nil\n");
@@ -298,46 +478,81 @@ void Command_UpdateUnitPosition(PLAYER *P, UNIT *U, int X, int Y)
 
 void Command_EndTurn(MATRIKS *M, PLAYER *P, UNIT *U)
 {
-	Map_RemoveMovement(M,U);
-	Command_ReleaseUnit(M,P,U);
+	Map_RemoveMovement(M,U); /* Hapus # dari map */
+	Command_ReleaseUnit(M,P,U); /* ubah boolean controlled jadi false */
 	printf("\n");
 }
 
-void Command_Input(MATRIKS *M, PLAYER *P, TERRAIN *T, boolean *finalstate)
+void Command_Debug(MATRIKS *M, PLAYER P[], UNIT U)
 {
-	ListT_CheckandDelete(&PListVillage(P), *T);
-	Player_IncreaseMoney(P);
-	Player_DecreaseMoney(P);
-	Command_ReplenishUnitMovement(M,P);
+	int idx;
+	char command[50];
+
+	printf("idx pemain :"); scanf("%d", &idx);
+	printf("Komponen yang ingin dicari : "); scanf("%s", &command);
+
+	if(strcmp(command, "ListUnit") == 0) {
+		printf("List Unit player %d : \n", idx);
+		addressU addrU = First(ListUnit(P[idx]));
+		while(addrU!=Nil) {
+			Player_PrintUnit(Unit(addrU));
+			addrU=Next(addrU);
+		}
+	}
+	else if(strcmp(command, "ListVillage") == 0) {
+		printf("List Unit player %d : \n", idx);
+		addressT addrT = First(ListVillage(P[idx]));
+		while(addrT!=Nil) {
+			Map_PrintVillage(Terrain(addrT));
+			addrT=Next(addrT);
+		}	
+	}
+	else if(strcmp(command, "Player") == 0) {
+		printf("Info Player %d : \n", idx);
+		Player_PrintTurnDebug(P,U,idx);
+
+	}
+}
+
+
+void Command_Input(MATRIKS *M, PLAYER P[], int idx, boolean *finalstate)
+{
+	Player_IncreaseMoney(P,idx);
+	Player_DecreaseMoney(P,idx);
+	Command_ReplenishUnitMovement(M,P,idx);
 
 	Stack S;
 	char command[50];
 	int clrscr;
-	UNIT U = Unit(First(PListUnit(P)));
+	UNIT U = Unit(First(ListUnit(P[idx])));
 
 	for(;;){
 		printf("-------------------------------------\n\n");
 		Command_ControlUnit(M, &U);
-		Player_PrintTurn(*P, U);
+		Player_PrintTurn(P, U, idx);
 		printf("Your Input : ");
 		scanf("%s", &command);
 
 		if(strcmp("MOVE",command) == 0) {
-			Command_Move(M,P,&U,&S,T);
+			Command_Move(M,P,idx,&U,&S);
 		} else if(strcmp("RECRUIT",command) == 0) {
-			Command_Recruit(M, P, U);
+			Command_Recruit(M, P, idx, U);
+		} else if(strcmp("ATTACK",command) == 0) {
+			Command_Attack(M, P, idx, &U, finalstate);
 		} else if(strcmp("INFO", command) == 0) {
 			Command_Info(*M);
 		} else if(strcmp("MAP", command) == 0) {
 			Map_Print(*M);
 		} else if(strcmp("CHANGE_UNIT", command) == 0) {
-			Command_ChangeUnit(M, P, &U);
+			Command_ChangeUnit(M, P, idx, &U);
 		} else if(strcmp("END_TURN", command) == 0) {
 			Command_EndTurn(M, P, &U);
 			Map_ClearScreen();
 			break;
 		} else if(strcmp("EXIT", command) == 0) {
 			exit(0);
+		} else if(strcmp("DEBUG", command) == 0) {
+			Command_Debug(M, P, U);
 		}
 
 		printf("Clear the screen?(1/0) : "); scanf("%d", &clrscr);

@@ -15,12 +15,35 @@ PLAYER Player_Init(int Order)
   return P;
 }
 
+void Player_PrintTurn(PLAYER P[], UNIT U, int idx)
+{
+  int income = 5*ListT_NBElmt(ListVillage(P[idx]));
 
-void Player_PrintTurn(PLAYER P, UNIT U){
-  printf("Player %d's Turn\n", P.Number);
-  printf("Cash : %dG | Income : %dG | Upkeep : %dG\n", P.Gold, P.Income, P.Upkeep);
+  printf("Player %d's Turn\n", Number(P[idx]));
+  printf("Cash : %dG | Income : %dG | Upkeep : %dG\n", Gold(P[idx]), income, Upkeep(P[idx]));
   Player_PrintUnit(U);
   printf("\n");
+}
+
+void Player_PrintTurnDebug(PLAYER P[], UNIT U, int idx)
+{
+
+  int income = 5*ListT_NBElmt(ListVillage(P[idx]));
+  int upkeep = ListU_NBElmt(ListUnit(P[idx]))-1;
+
+  printf("Player %d's Turn\n", Number(P[idx]));
+  printf("Cash : %dG | Income : %dG | Upkeep : %dG\n", Gold(P[idx]), income, upkeep);
+  printf("\n");
+}
+
+int Player_IdxOpp(int idx)
+/* Menghasilkan index untuk musuh */
+{
+  if(idx == 1){
+    return 2;
+  } else if(idx == 2) {
+    return 1;
+  }
 }
 
 boolean Player_Lose(PLAYER P)
@@ -38,23 +61,24 @@ boolean Player_Lose(PLAYER P)
   }
 }
 
-void Player_IncreaseMoney(PLAYER *P)
+void Player_IncreaseMoney(PLAYER P[], int idx)
 /* Menambah uang player sesuai jumlah village yang diakuisisi */
 {
-  PGold(P) = PGold(P)+PIncome(P);
+  int amount = 5*ListT_NBElmt(ListVillage(P[idx]));
+  Gold(P[idx]) = Gold(P[idx])+amount;
 }
 
 
-void Player_DecreaseMoney(PLAYER *P)
+void Player_DecreaseMoney(PLAYER P[], int idx)
 /* Mengurangi uang player sesuai jumlah unit yang dimiliki */
 {
-    PGold(P) = PGold(P)-PUpkeep(P);
+    Gold(P[idx]) = Gold(P[idx])-Upkeep(P[idx]);
 }
 
-void Player_ReplenishMovement(PLAYER *P)
+void Player_ReplenishMovement(PLAYER P[], int idx)
 /* Mengembalikan nilai movement unit ke nilai awal */
 {
-  addressU addr = First(PListUnit(P));
+  addressU addr = First(ListUnit(P[idx]));
   UNIT U;
 
   while(addr != Nil) {
@@ -67,7 +91,7 @@ void Player_ReplenishMovement(PLAYER *P)
     } else if(Unit(addr).Type == 'W') {
       Unit(addr).Movement = 2;
     }
-
+    Unit(addr).Attack_Chance = true;
     addr = Next(addr);
   }
 }

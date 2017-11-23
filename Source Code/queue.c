@@ -8,7 +8,7 @@ void Queue_CreateEmpty (Queue * Q, int Max)
 /* atau : jika alokasi gagal, Q kosong dg MaxEl=0 */
 /* Proses : Melakukan alokasi, membuat sebuah Q kosong */
 {
-  (*Q).T = (PLAYER *) malloc((Max + 1) * sizeof(PLAYER));
+  (*Q).T = (int *) malloc((Max + 1) * sizeof(int));
   if ((*Q).T != NULL) {
     MaxEl(*Q) = Max;
     Head(*Q) = Nol;
@@ -50,7 +50,7 @@ void Queue_DeAlokasi(Queue * Q)
   MaxEl(*Q) = 0;
 }
 
-void Queue_Add (Queue * Q, PLAYER P)
+void Queue_Add (Queue * Q, int X)
 /* Proses: Menambahkan X pada Q dengan aturan FIFO */
 /* I.S. Q mungkin kosong, tabel penampung elemen Q TIDAK penuh */
 /* F.S. X menjadi TAIL yang baru, TAIL "maju" dengan mekanisme circular buffer */
@@ -61,16 +61,16 @@ void Queue_Add (Queue * Q, PLAYER P)
   } else {
     Tail(*Q) = (Tail(*Q) % MaxEl(*Q)) + 1;
   }
-  InfoTail(*Q) = P;
+  InfoTail(*Q) = X;
 }
 
-void Queue_Del (Queue * Q, PLAYER *P)
+void Queue_Del (Queue * Q, int *X)
 /* Proses: Menghapus X pada Q dengan aturan FIFO */
 /* I.S. Q tidak mungkin kosong */
 /* F.S. X = Nolai elemen HEAD pd I.S., HEAD "maju" dengan mekanisme circular buffer; 
         Q mungkin kosong */
 {
-  *P = InfoHead(*Q);
+  *X = InfoHead(*Q);
   Head(*Q) = (Head(*Q) % MaxEl(*Q)) + 1;
   if (Head(*Q) == Tail(*Q) % MaxEl(*Q) + 1) {
   Head(*Q) = Nol;
