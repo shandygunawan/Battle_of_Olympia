@@ -3,7 +3,6 @@
 #include "boolean.h"
 #include "globalconst.h"
 #include "pcolor.h"
-#include "stackt.h"
 #include "point.h"
 #include "unit.h"
 #include "listu.h"
@@ -11,6 +10,10 @@
 #include "listt.h"
 #include "player.h"
 #include "queue.h"
+#include "stackt.h"
+#include "mesinkar.h"
+#include "mesinkata.h"
+#include "readinput.h"
 #include "command.h"
 
 void Main_InitState(MATRIKS *M, PLAYER P[])
@@ -64,24 +67,14 @@ void Main_InitState(MATRIKS *M, PLAYER P[])
 void Main_PlayingState(MATRIKS *M, PLAYER P[])
 {
     int idx;
-    boolean finalstate = false;
     Queue Q;
     Queue_CreateEmpty(&Q,2); Queue_Add(&Q,1); Queue_Add(&Q,2);
 
     for(;;) {
         Queue_Del(&Q, &idx);
-        Command_Input(M, P, idx, &finalstate);
-        if(finalstate == true){
-            break;
-        } else {
-            Queue_Add(&Q, idx);
-        }
+        Command_Input(M, P, idx);
+        Queue_Add(&Q, idx);
     }
-}
-
-void Main_FinalState() {
-    printf("Game Over!\n");
-    exit(0);
 }
 
 int main() {

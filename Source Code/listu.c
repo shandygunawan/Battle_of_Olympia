@@ -347,6 +347,7 @@ void ListU_PrintEnemy(UNIT U, UNIT E)
   } else if (Type(E) == 'W') {
     printf("White Mage");
   }
+  printf(" (%d,%d)", LocationY(E), LocationX(E));
   printf(" | ");
   printf("Health : %d/%d", Health(E), MaxHealth(E));
 

@@ -121,7 +121,7 @@ void Map_Print(MATRIKS M)
                       print_red(Elmt(M,idxRow,idxCol).Terrain.Type);
                   } else if(Elmt(M,idxRow,idxCol).Terrain.Owner == 2){
                       print_blue(Elmt(M,idxRow,idxCol).Terrain.Type);
-                  } else if(Elmt(M,idxRow,idxCol).Terrain.Owner == 3){
+                  } else if(Elmt(M,idxRow,idxCol).Terrain.Owner == NotOwned && Elmt(M,idxRow,idxCol).Terrain.Type == 'V'){
                       print_yellow(Elmt(M,idxRow,idxCol).Terrain.Type);
                   } else {
                       printf("%c",Elmt(M,idxRow,idxCol).Terrain.Type);
@@ -198,8 +198,8 @@ void Map_SpawnVillage(MATRIKS *M)
   int i;
 
   for(i=0;i<3;i++){
-    srand(time(NULL));
     do {
+      srand(time(NULL));
       X = rand() % NBrsEff(*M);
       Y = rand() % NKolEff(*M);
 
@@ -208,7 +208,7 @@ void Map_SpawnVillage(MATRIKS *M)
       }
     } while(occupied == true);
 
-    PElmt(M,X,Y).Terrain.Owner = 3;
+    PElmt(M,X,Y).Terrain.Owner = NotOwned;
     PElmt(M,X,Y).Terrain.Type = 'V';
   }
 
@@ -219,36 +219,6 @@ void Map_AcquiateVillage(UNIT *U, TERRAIN *V)
 {
   V->Owner = U->Owner;
   U->Movement = 0;
-}
-
-void Map_Heal(MATRIKS *M, POINT P, int N)
-/* Meningkatkan health unit yang berada di Point P sebesar N */
-{
-  int X = P.X;
-  int Y = P.Y;
-
-  PElmt(M,X,Y).Unit.Health += N;
-}
-
-void Map_HealAdjacent(MATRIKS *M, POINT Po, int N)
-/* Meningkatkan Health untuk unit-unit yang berada adjacent dengan White Mage */
-/* Point P = Posisi White Mage, N = jumlah health yang diheal */ 
-{
-  POINT atas, bawah, kiri, kanan;
-
-  atas.X = Po.X;
-  atas.Y = Po.Y-1;
-  bawah.X = Po.X;
-  bawah.Y = Po.Y+1;
-  kiri.X = Po.X-1;
-  kiri.Y = Po.Y;
-  kanan.X = Po.X+1;
-  kanan.Y = Po.Y;
-
-  Map_Heal(M, atas, N);
-  Map_Heal(M, bawah, N);
-  Map_Heal(M, kiri, N);
-  Map_Heal(M, kanan, N);
 }
 
 TERRAIN Map_CreateEmptyTerrain(POINT P)

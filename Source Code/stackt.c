@@ -27,7 +27,7 @@
 
 /* ************ Prototype ************ */
 /* *** Konstruktor/Kreator *** */
-void CreateEmpty (Stack *S)
+void Stack_CreateEmpty (Stack *S)
 /* I.S. sembarang; */
 /* F.S. Membuat sebuah stack S yang kosong berkapasitas MaxEl */
 /* jadi indeksnyaa antara 1.. MaxEl+1 karena 0 tidak dipakai */
@@ -37,25 +37,25 @@ void CreateEmpty (Stack *S)
 }
 
 /* ************ Predikat Untuk test keadaan KOLEKSI ************ */
-boolean IsEmpty (Stack S)
+boolean Stack_IsEmpty (Stack S)
 /* Mengirim true jika Stack kosong: lihat definisi di atas */
 {
   return (Top(S) == Nol);
 }
 
-boolean IsFull (Stack S)
+boolean Stack_IsFull (Stack S)
 /* Mengirim true jika tabel penampung Nolai elemen stack penuh */
  {
   return (Top(S) == MaxElStack);
  }
 
 /* ************ Menambahkan sebuah elemen ke Stack ************ */
-void Push (Stack * S, infotype X)
+void Stack_Push (Stack * S, UNIT X)
 /* Menambahkan X sebagai elemen Stack S. */
 /* I.S. S mungkin kosong, tabel penampung elemen stack TIDAK penuh */
 /* F.S. X menjadi TOP yang baru,TOP bertambah 1 */
 {
-  if (IsEmpty(*S)) {
+  if (Stack_IsEmpty(*S)) {
     Top(*S) = 1;
   } else {
     Top(*S)++;
@@ -64,7 +64,7 @@ void Push (Stack * S, infotype X)
 }
 
 /* ************ Menghapus sebuah elemen Stack ************ */
-void Pop (Stack * S, infotype* X)
+void Stack_Pop (Stack * S, UNIT* X)
 /* Menghapus X dari Stack S. */
 /* I.S. S  tidak mungkin kosong */
 /* F.S. X adalah Nolai elemen TOP yang lama, TOP berkurang 1 */

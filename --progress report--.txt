@@ -1,0 +1,20 @@
+--progress report--
+
+Yang sudah lancar :
+1. Move
+2. Undo
+3. Change Unit
+4. Recruit (+WhiteMage)
+5. Map
+6. Info
+7. End turn
+8. Exit
+9. Mesin Kata
+10. Attack
+11. Healing White Mage
+12. End Game
+13. Next Unit
+
+Yang belum/ga bisa :
+-> Probabilitas (kalau sempet)
+-> Bug di ukuran matriks tidak NxN

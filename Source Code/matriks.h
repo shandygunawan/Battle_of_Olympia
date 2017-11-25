@@ -78,13 +78,6 @@ void Map_SpawnVillage(MATRIKS *M);
 void Map_AcquiateVillage(UNIT *U, TERRAIN *V);
 /* Unit mengakuisisi village yang satu petak dengan unit tersebut */
 
-void Map_Heal(MATRIKS *M, POINT P, int N);
-/* Meningkatkan health unit yang berada di Point P sebesar N */
-
-void Map_HealAdjacent(MATRIKS *M, POINT P, int N);
-/* Meningkatkan Health untuk unit-unit yang berada adjacent dengan White Mage */
-/* Point P = Posisi White Mage, N = jumlah health yang diheal */ 
-
 TERRAIN Map_CreateEmptyTerrain(POINT P);
 /* Membuat terrain kosong */
 
